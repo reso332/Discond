@@ -81,31 +81,6 @@
     border-color: var(--primary);
   }
   
-  .admin-check {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    padding: 10px;
-    background: #f9f9f9;
-    border-radius: 8px;
-  }
-  
-  .admin-check label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-  }
-  
-  #adminPassword {
-    width: 150px;
-    padding: 8px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    display: none;
-  }
-  
   .login-btn {
     background: var(--primary);
     color: white;
@@ -136,6 +111,7 @@
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow-y: auto;
   }
   
   .user-profile {
@@ -178,6 +154,7 @@
     border-radius: 10px;
     margin-bottom: 20px;
     border: 1px solid #ffcccc;
+    display: none;
   }
   
   .admin-tools h3 {
@@ -229,6 +206,73 @@
     border: 1px solid var(--border);
     border-radius: 6px;
     margin-bottom: 10px;
+  }
+  
+  /* قائمة المستخدمين المتصلين */
+  .online-users {
+    background: var(--secondary);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .online-users h3 {
+    color: var(--primary);
+    margin-bottom: 15px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .online-users h3:before {
+    content: "👥";
+  }
+  
+  .users-list {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .user-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+  }
+  
+  .user-item:last-child {
+    border-bottom: none;
+  }
+  
+  .user-item-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .user-item-name {
+    flex: 1;
+    font-size: 14px;
+  }
+  
+  .user-item-admin {
+    background: #ff4757;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+  }
+  
+  .online-count {
+    background: var(--primary);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    margin-right: 10px;
   }
   
   /* نافذة التحكم */
@@ -555,14 +599,6 @@
     <input type="text" id="userAvatar" class="login-input" placeholder="رابط الصورة (اختياري)">
     <p style="color: var(--text-light); font-size: 14px; margin-bottom: 20px;">يمكنك ترك رابط الصورة فارغاً</p>
     
-    <div class="admin-check">
-      <label>
-        <input type="checkbox" id="isAdmin">
-        تسجيل دخول كإدمن
-      </label>
-      <input type="password" id="adminPassword" class="login-input" placeholder="كلمة الإدمن">
-    </div>
-    
     <button id="loginBtn" class="login-btn">ابدأ الدردشة</button>
   </div>
 </div>
@@ -608,6 +644,7 @@
       <div class="status">
         <span id="onlineStatus">✓ متصل</span>
         • <span id="messageCount">0 رسالة</span>
+        • <span id="onlineUsersCount">0 متصل</span>
       </div>
     </div>
     
@@ -619,11 +656,25 @@
           <span id="adminBadge" class="admin-badge" style="display: none;">إدمن</span>
           اسم المستخدم
         </div>
-        <div style="color: var(--text-light); font-size: 14px;">مستخدم نشط</div>
+        <div style="color: var(--text-light); font-size: 14px; margin-bottom: 10px;">مستخدم نشط</div>
+        <div style="color: var(--primary); font-size: 12px; background: #e8f0fe; padding: 5px 10px; border-radius: 15px;">
+          ID: <span id="userIdText">---</span>
+        </div>
+      </div>
+      
+      <!-- قائمة المستخدمين المتصلين -->
+      <div class="online-users">
+        <h3>
+          <span class="online-count" id="onlineCount">0</span>
+          المستخدمون المتصلون
+        </h3>
+        <div class="users-list" id="usersList">
+          <!-- المستخدمون يظهرون هنا -->
+        </div>
       </div>
       
       <!-- أدوات الإدمن (تظهر فقط للإدمن) -->
-      <div id="adminTools" class="admin-tools" style="display: none;">
+      <div id="adminTools" class="admin-tools">
         <h3>أدوات الإدمن</h3>
         
         <div class="admin-buttons">
@@ -638,15 +689,9 @@
         
         <input type="text" id="targetUserId" class="admin-input" placeholder="معرف المستخدم المستهدف">
         <input type="text" id="lockDuration" class="admin-input" placeholder="مدة القفل بالدقائق">
-      </div>
-      
-      <!-- معلومات عامة -->
-      <div style="background: var(--secondary); padding: 15px; border-radius: 8px; margin-top: 20px;">
-        <h4 style="margin-bottom: 10px; color: var(--primary);">معلومات الدردشة</h4>
-        <div style="font-size: 14px; color: var(--text-light); line-height: 1.6;">
-          <div>عدد المستخدمين: <span id="userCount">0</span></div>
-          <div>حالة الدردشة: <span id="chatStatusText">مفتوحة</span></div>
-          <div>الإدمن النشط: <span id="activeAdmin">لا يوجد</span></div>
+        
+        <div style="font-size: 12px; color: #666; margin-top: 10px; text-align: center;">
+          لتكون إدمن، غير isAdmin إلى true في قاعدة البيانات
         </div>
       </div>
     </div>
@@ -684,23 +729,22 @@
   const loginBtn = document.getElementById('loginBtn');
   const userNameInput = document.getElementById('userName');
   const userAvatarInput = document.getElementById('userAvatar');
-  const isAdminCheck = document.getElementById('isAdmin');
-  const adminPasswordInput = document.getElementById('adminPassword');
   const profileName = document.getElementById('profileName');
   const profileAvatar = document.getElementById('profileAvatar');
   const adminBadge = document.getElementById('adminBadge');
   const adminTools = document.getElementById('adminTools');
+  const userIdText = document.getElementById('userIdText');
   const messagesContainer = document.getElementById('messagesContainer');
   const messageInput = document.getElementById('message-input');
   const sendBtn = document.getElementById('send-btn');
   const messageCount = document.getElementById('messageCount');
   const onlineStatus = document.getElementById('onlineStatus');
+  const onlineUsersCount = document.getElementById('onlineUsersCount');
+  const onlineCount = document.getElementById('onlineCount');
+  const usersList = document.getElementById('usersList');
   const chatLocked = document.getElementById('chatLocked');
   const lockReason = document.getElementById('lockReason');
   const lockTime = document.getElementById('lockTime');
-  const chatStatusText = document.getElementById('chatStatusText');
-  const userCount = document.getElementById('userCount');
-  const activeAdmin = document.getElementById('activeAdmin');
 
   // أدوات الإدمن
   const clearChatBtn = document.getElementById('clearChatBtn');
@@ -717,9 +761,6 @@
   const modalConfirmBtn = document.getElementById('modalConfirmBtn');
   const modalCancelBtn = document.getElementById('modalCancelBtn');
 
-  // كلمة مرور الإدمن (يمكن تغييرها)
-  const ADMIN_PASSWORD = "admin123";
-
   // بيانات المستخدم الحالي
   let currentUser = {
     name: '',
@@ -732,6 +773,7 @@
   let currentAction = '';
   let chatLockedUntil = null;
   let mutedUsers = {};
+  let onlineUsers = {};
 
   // عرض إشعار
   function showNotification(message, type = 'info') {
@@ -750,16 +792,9 @@
   loginBtn.addEventListener('click', () => {
     const name = userNameInput.value.trim();
     const avatar = userAvatarInput.value.trim();
-    const wantsAdmin = isAdminCheck.checked;
-    const adminPassword = adminPasswordInput.value.trim();
     
     if (!name) {
       showNotification('الرجاء إدخال اسم المستخدم', 'error');
-      return;
-    }
-    
-    if (wantsAdmin && adminPassword !== ADMIN_PASSWORD) {
-      showNotification('كلمة مرور الإدمن غير صحيحة', 'error');
       return;
     }
     
@@ -767,26 +802,22 @@
     currentUser.userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     currentUser.name = name;
     currentUser.avatar = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6d8ed1&color=fff`;
-    currentUser.isAdmin = wantsAdmin;
+    currentUser.isAdmin = false; // دائماً false عند التسجيل
     
     // حفظ بيانات المستخدم في Firebase
     set(ref(db, `users/${currentUser.userId}`), {
       name: currentUser.name,
       avatar: currentUser.avatar,
-      isAdmin: currentUser.isAdmin,
+      isAdmin: false, // يبقى false إلا إذا غيرته في الداتابيز
       lastSeen: serverTimestamp(),
-      joinedAt: serverTimestamp()
+      joinedAt: serverTimestamp(),
+      isOnline: true
     });
     
     // تحديث واجهة المستخدم
     profileName.textContent = currentUser.name;
     profileAvatar.src = currentUser.avatar;
-    
-    if (currentUser.isAdmin) {
-      adminBadge.style.display = 'inline-block';
-      adminTools.style.display = 'block';
-      profileName.style.color = '#ff4757';
-    }
+    userIdText.textContent = currentUser.userId.substring(0, 10) + '...';
     
     // إخفاء شاشة التسجيل وإظهار الشات
     loginScreen.style.display = 'none';
@@ -795,21 +826,38 @@
     // التركيز على حقل الرسالة
     messageInput.focus();
     
+    // مراقبة صلاحية الإدمن
+    monitorAdminStatus();
     // مراقبة إعدادات الدردشة
     monitorChatSettings();
     // مراقبة المستخدمين المكتومين
     monitorMutedUsers();
-    // مراقبة عدد المستخدمين
-    monitorUsers();
+    // مراقبة المستخدمين المتصلين
+    monitorOnlineUsers();
   });
 
-  // التحكم بعرض كلمة مرور الإدمن
-  isAdminCheck.addEventListener('change', function() {
-    adminPasswordInput.style.display = this.checked ? 'block' : 'none';
-    if (!this.checked) {
-      adminPasswordInput.value = '';
-    }
-  });
+  // مراقبة صلاحية الإدمن
+  function monitorAdminStatus() {
+    const userRef = ref(db, `users/${currentUser.userId}/isAdmin`);
+    
+    onValue(userRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const isAdmin = snapshot.val();
+        currentUser.isAdmin = isAdmin;
+        
+        if (isAdmin) {
+          adminBadge.style.display = 'inline-block';
+          adminTools.style.display = 'block';
+          profileName.style.color = '#ff4757';
+          showNotification('أنت الآن إدمن في الدردشة', 'success');
+        } else {
+          adminBadge.style.display = 'none';
+          adminTools.style.display = 'none';
+          profileName.style.color = '';
+        }
+      }
+    });
+  }
 
   // مراقبة إعدادات الدردشة
   function monitorChatSettings() {
@@ -822,8 +870,6 @@
           chatLocked.style.display = 'flex';
           messageInput.disabled = true;
           sendBtn.disabled = true;
-          chatStatusText.textContent = 'مقفولة';
-          chatStatusText.style.color = '#ff4757';
           
           lockReason.textContent = settings.lockReason || 'الدردشة مغلقة مؤقتاً من قبل الإدمن';
           
@@ -851,21 +897,7 @@
           chatLocked.style.display = 'none';
           messageInput.disabled = false;
           sendBtn.disabled = false;
-          chatStatusText.textContent = 'مفتوحة';
-          chatStatusText.style.color = '#4CAF50';
           chatLockedUntil = null;
-        }
-        
-        // عرض الإدمن النشط
-        if (settings.lockedBy && settings.isLocked) {
-          const adminRef = ref(db, `users/${settings.lockedBy}`);
-          onValue(adminRef, (adminSnapshot) => {
-            if (adminSnapshot.exists()) {
-              activeAdmin.textContent = adminSnapshot.val().name;
-            }
-          }, { onlyOnce: true });
-        } else {
-          activeAdmin.textContent = 'لا يوجد';
         }
       }
     });
@@ -882,15 +914,51 @@
     });
   }
 
-  // مراقبة عدد المستخدمين
-  function monitorUsers() {
+  // مراقبة المستخدمين المتصلين
+  function monitorOnlineUsers() {
     onValue(usersRef, (snapshot) => {
       if (snapshot.exists()) {
         const users = snapshot.val();
-        const count = Object.keys(users).length;
-        userCount.textContent = count;
+        onlineUsers = {};
+        usersList.innerHTML = '';
+        
+        let count = 0;
+        
+        // تحديث حالة اتصال المستخدم الحالي كل 30 ثانية
+        set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
+        
+        for (const userId in users) {
+          const user = users[userId];
+          onlineUsers[userId] = user;
+          
+          // اعتبار المستخدم متصلاً إذا كان lastSeen في آخر 2 دقيقة
+          const lastSeen = user.lastSeen ? new Date(user.lastSeen) : new Date();
+          const now = new Date();
+          const diff = (now - lastSeen) / (1000 * 60); // الفارق بالدقائق
+          
+          if (diff < 2) { // متصل إذا كان آخر ظهور منذ أقل من دقيقتين
+            count++;
+            
+            // إضافة المستخدم للقائمة
+            const userItem = document.createElement('div');
+            userItem.className = 'user-item';
+            userItem.innerHTML = `
+              <img src="${user.avatar}" class="user-item-avatar" alt="${user.name}">
+              <span class="user-item-name">${user.name}</span>
+              ${user.isAdmin ? '<span class="user-item-admin">إدمن</span>' : ''}
+            `;
+            usersList.appendChild(userItem);
+          }
+        }
+        
+        // تحديث العداد
+        onlineCount.textContent = count;
+        onlineUsersCount.textContent = `${count} متصل`;
       } else {
-        userCount.textContent = '0';
+        onlineUsers = {};
+        usersList.innerHTML = '';
+        onlineCount.textContent = '0';
+        onlineUsersCount.textContent = '0 متصل';
       }
     });
   }
@@ -1069,7 +1137,7 @@
             userAvatar: currentUser.avatar,
             text: '🔒 ' + lockedMessage,
             timestamp: serverTimestamp(),
-            isAdminMessage: true
+            isAdmin: true
           });
           
           // فتح الدردشة بعد الرسالة
@@ -1223,6 +1291,11 @@
   window.addEventListener('online', () => {
     onlineStatus.textContent = '✓ متصل';
     onlineStatus.style.color = '';
+    
+    // تحديث حالة الاتصال في الداتابيز
+    if (currentUser.userId) {
+      set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
+    }
   });
   
   window.addEventListener('offline', () => {
@@ -1230,9 +1303,17 @@
     onlineStatus.style.color = '#ff4757';
   });
 
+  // تحديث حالة اتصال المستخدم بانتظام
+  setInterval(() => {
+    if (currentUser.userId && navigator.onLine) {
+      set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
+    }
+  }, 30000); // كل 30 ثانية
+
   // تحديث حالة المستخدم عند الخروج
   window.addEventListener('beforeunload', () => {
     if (currentUser.userId) {
+      // لا تحذف المستخدم، فقط تحديث lastSeen
       set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
     }
   });
