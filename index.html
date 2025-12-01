@@ -195,6 +195,9 @@
   .user-item-name {
     flex: 1;
     font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   .user-item-admin {
@@ -203,6 +206,7 @@
     padding: 2px 8px;
     border-radius: 10px;
     font-size: 11px;
+    flex-shrink: 0;
   }
   
   .user-item-muted {
@@ -211,6 +215,7 @@
     padding: 2px 8px;
     border-radius: 10px;
     font-size: 11px;
+    flex-shrink: 0;
   }
   
   .online-count {
@@ -283,16 +288,23 @@
   
   .command-user-info {
     flex: 1;
+    min-width: 0;
   }
   
   .command-user-name {
     font-weight: 600;
     font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   .command-user-id {
     font-size: 12px;
     color: var(--text-light);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   .command-modal-buttons {
@@ -390,6 +402,7 @@
     border-radius: 50%;
     object-fit: cover;
     margin: 0 10px;
+    flex-shrink: 0;
   }
   
   .message-content {
@@ -398,6 +411,9 @@
     border-radius: 12px;
     max-width: calc(100% - 60px);
     position: relative;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
   }
   
   .message.self .message-content {
@@ -413,12 +429,18 @@
   .message-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 5px;
+    gap: 10px;
   }
   
   .message-name {
     font-weight: 600;
     font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   
   .message.admin .message-name {
@@ -428,6 +450,7 @@
   .message-time {
     font-size: 12px;
     color: var(--text-light);
+    flex-shrink: 0;
   }
   
   .message.self .message-time {
@@ -436,6 +459,9 @@
   
   .message-text {
     line-height: 1.5;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
   }
   
   .delete-btn {
@@ -484,6 +510,7 @@
     font-size: 16px;
     resize: none;
     height: 60px;
+    font-family: inherit;
   }
   
   #message-input:disabled {
@@ -505,6 +532,7 @@
     cursor: pointer;
     font-size: 16px;
     transition: background 0.3s;
+    flex-shrink: 0;
   }
   
   #send-btn:disabled {
@@ -522,6 +550,10 @@
     font-size: 14px;
     color: var(--text-light);
     background: var(--secondary);
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
   }
   
   .chat-status {
@@ -726,7 +758,8 @@
     name: '',
     avatar: '',
     userId: '',
-    isAdmin: false
+    isAdmin: false,
+    isOnline: true
   };
 
   // متغيرات التحكم
@@ -735,6 +768,7 @@
   let onlineUsers = {};
   let currentCommand = '';
   let selectedUser = null;
+  let messageCountValue = 0;
 
   // عرض إشعار
   function showNotification(message, type = 'info') {
@@ -750,7 +784,7 @@
   }
 
   // تسجيل الدخول
-  loginBtn.addEventListener('click', () => {
+  loginBtn.addEventListener('click', async () => {
     const name = userNameInput.value.trim();
     const avatar = userAvatarInput.value.trim();
     
@@ -765,36 +799,42 @@
     currentUser.avatar = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6d8ed1&color=fff`;
     currentUser.isAdmin = false;
     
-    // حفظ بيانات المستخدم في Firebase
-    set(ref(db, `users/${currentUser.userId}`), {
-      name: currentUser.name,
-      avatar: currentUser.avatar,
-      isAdmin: false,
-      lastSeen: serverTimestamp(),
-      joinedAt: serverTimestamp(),
-      isOnline: true
-    });
-    
-    // تحديث واجهة المستخدم
-    profileName.textContent = currentUser.name;
-    profileAvatar.src = currentUser.avatar;
-    userIdText.textContent = currentUser.userId.substring(0, 10) + '...';
-    
-    // إخفاء شاشة التسجيل وإظهار الشات
-    loginScreen.style.display = 'none';
-    mainApp.style.display = 'block';
-    
-    // التركيز على حقل الرسالة
-    messageInput.focus();
-    
-    // مراقبة صلاحية الإدمن
-    monitorAdminStatus();
-    // مراقبة إعدادات الدردشة
-    monitorChatSettings();
-    // مراقبة المستخدمين المكتومين
-    monitorMutedUsers();
-    // مراقبة المستخدمين المتصلين
-    monitorOnlineUsers();
+    try {
+      // حفظ بيانات المستخدم في Firebase
+      await set(ref(db, `users/${currentUser.userId}`), {
+        name: currentUser.name,
+        avatar: currentUser.avatar,
+        isAdmin: false,
+        lastSeen: serverTimestamp(),
+        joinedAt: serverTimestamp(),
+        isOnline: true
+      });
+      
+      // تحديث واجهة المستخدم
+      profileName.textContent = currentUser.name;
+      profileAvatar.src = currentUser.avatar;
+      userIdText.textContent = currentUser.userId.substring(0, 10) + '...';
+      
+      // إخفاء شاشة التسجيل وإظهار الشات
+      loginScreen.style.display = 'none';
+      mainApp.style.display = 'block';
+      
+      // التركيز على حقل الرسالة
+      messageInput.focus();
+      
+      // مراقبة صلاحية الإدمن
+      monitorAdminStatus();
+      // مراقبة إعدادات الدردشة
+      monitorChatSettings();
+      // مراقبة المستخدمين المكتومين
+      monitorMutedUsers();
+      // مراقبة المستخدمين المتصلين
+      monitorOnlineUsers();
+      
+    } catch (error) {
+      console.error('خطأ في التسجيل:', error);
+      showNotification('حدث خطأ في التسجيل', 'error');
+    }
   });
 
   // مراقبة صلاحية الإدمن
@@ -857,6 +897,15 @@
           sendBtn.disabled = false;
           chatLockedUntil = null;
         }
+      } else {
+        // إذا لم توجد إعدادات، إنشاء إعدادات افتراضية
+        set(chatSettingsRef, {
+          isLocked: false,
+          lockedBy: null,
+          lockReason: null,
+          lockedUntil: null,
+          lockedAt: null
+        });
       }
     });
   }
@@ -874,59 +923,90 @@
 
   // مراقبة المستخدمين المتصلين
   function monitorOnlineUsers() {
+    let updateTimeout;
+    
     onValue(usersRef, (snapshot) => {
       if (snapshot.exists()) {
         const users = snapshot.val();
-        onlineUsers = {};
-        usersList.innerHTML = '';
-        
-        let count = 0;
+        const usersArray = [];
         
         // تحديث حالة اتصال المستخدم الحالي
-        set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
+        if (currentUser.userId) {
+          set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
+        }
         
+        // جمع المستخدمين النشطين
         for (const userId in users) {
           const user = users[userId];
-          onlineUsers[userId] = user;
           
-          // اعتبار المستخدم متصلاً إذا كان lastSeen في آخر 2 دقيقة
+          // اعتبار المستخدم متصلاً إذا كان lastSeen في آخر دقيقتين
           const lastSeen = user.lastSeen ? new Date(user.lastSeen) : new Date();
           const now = new Date();
           const diff = (now - lastSeen) / (1000 * 60);
           
           if (diff < 2) {
-            count++;
-            
-            // إضافة المستخدم للقائمة
-            const userItem = document.createElement('div');
-            userItem.className = 'user-item';
-            
-            let badges = '';
-            if (user.isAdmin) {
-              badges += '<span class="user-item-admin">إدمن</span>';
-            }
-            if (mutedUsers[userId]) {
-              badges += '<span class="user-item-muted">مكتوم</span>';
-            }
-            
-            userItem.innerHTML = `
-              <img src="${user.avatar}" class="user-item-avatar" alt="${user.name}">
-              <span class="user-item-name">${user.name}</span>
-              ${badges}
-            `;
-            usersList.appendChild(userItem);
+            usersArray.push({
+              id: userId,
+              ...user
+            });
           }
         }
         
-        // تحديث العداد
-        onlineCount.textContent = count;
-        onlineUsersCount.textContent = `${count} متصل`;
+        // تحديث القائمة بعد تجميع البيانات
+        updateUsersList(usersArray);
+        
       } else {
-        onlineUsers = {};
-        usersList.innerHTML = '';
-        onlineCount.textContent = '0';
-        onlineUsersCount.textContent = '0 متصل';
+        // إذا لم يوجد مستخدمون
+        updateUsersList([]);
       }
+    });
+  }
+
+  // تحديث قائمة المستخدمين
+  function updateUsersList(usersArray) {
+    usersList.innerHTML = '';
+    
+    // إزالة التكرارات بناءً على المعرف
+    const uniqueUsers = [];
+    const seenIds = new Set();
+    
+    for (const user of usersArray) {
+      if (!seenIds.has(user.id)) {
+        seenIds.add(user.id);
+        uniqueUsers.push(user);
+      }
+    }
+    
+    // تحديث العداد
+    onlineCount.textContent = uniqueUsers.length;
+    onlineUsersCount.textContent = `${uniqueUsers.length} متصل`;
+    
+    // تحديث بيانات المستخدمين المتصلين
+    onlineUsers = {};
+    
+    // إضافة المستخدمين للقائمة
+    uniqueUsers.forEach(user => {
+      onlineUsers[user.id] = user;
+      
+      // إضافة المستخدم للقائمة
+      const userItem = document.createElement('div');
+      userItem.className = 'user-item';
+      
+      let badges = '';
+      if (user.isAdmin) {
+        badges += '<span class="user-item-admin">إدمن</span>';
+      }
+      if (mutedUsers[user.id]) {
+        badges += '<span class="user-item-muted">مكتوم</span>';
+      }
+      
+      userItem.innerHTML = `
+        <img src="${user.avatar}" class="user-item-avatar" alt="${user.name}" 
+             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=6d8ed1&color=fff'">
+        <span class="user-item-name">${user.name}</span>
+        ${badges}
+      `;
+      usersList.appendChild(userItem);
     });
   }
 
@@ -936,33 +1016,45 @@
     commandModalTitle.textContent = title;
     commandUsersList.innerHTML = '';
     
-    // إضافة المستخدمين للقائمة
+    // جمع المستخدمين الفريدين
+    const uniqueUsers = [];
+    const seenIds = new Set();
+    
     for (const userId in onlineUsers) {
       const user = onlineUsers[userId];
       
       // تخطي المستخدم الحالي
       if (userId === currentUser.userId) continue;
       
+      if (!seenIds.has(userId)) {
+        seenIds.add(userId);
+        uniqueUsers.push({ id: userId, ...user });
+      }
+    }
+    
+    // عرض المستخدمين
+    uniqueUsers.forEach(user => {
       const userItem = document.createElement('div');
       userItem.className = 'command-user-item';
-      userItem.dataset.userId = userId;
+      userItem.dataset.userId = user.id;
       
       userItem.innerHTML = `
-        <img src="${user.avatar}" class="command-user-avatar" alt="${user.name}">
+        <img src="${user.avatar}" class="command-user-avatar" alt="${user.name}"
+             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=6d8ed1&color=fff'">
         <div class="command-user-info">
           <div class="command-user-name">${user.name}</div>
-          <div class="command-user-id">${userId.substring(0, 15)}...</div>
+          <div class="command-user-id">${user.id.substring(0, 15)}...</div>
         </div>
       `;
       
       userItem.addEventListener('click', () => {
-        selectedUser = userId;
-        executeCommand(command, userId);
+        selectedUser = user.id;
+        executeCommand(command, user.id);
         hideCommandModal();
       });
       
       commandUsersList.appendChild(userItem);
-    }
+    });
     
     commandModal.style.display = 'flex';
   }
@@ -994,7 +1086,6 @@
           lockedAt: serverTimestamp()
         });
         
-        // إرسال رسالة النظام
         push(messagesRef, {
           userId: 'system',
           userName: 'النظام',
@@ -1033,7 +1124,8 @@
         set(ref(db, `mutedUsers/${targetUserId}`), {
           mutedBy: currentUser.userId,
           mutedUntil: muteUntil.toISOString(),
-          mutedAt: serverTimestamp()
+          mutedAt: serverTimestamp(),
+          userName: targetUser.name
         });
         
         push(messagesRef, {
@@ -1103,7 +1195,6 @@
     
     const parts = text.substring(1).split(' ');
     const command = parts[0].toLowerCase();
-    const args = parts.slice(1);
     
     // التحقق من أن المرسل إدمن
     if (!message.isAdmin) {
@@ -1139,7 +1230,7 @@
   }
 
   // إرسال رسالة
-  function sendMessage() {
+  async function sendMessage() {
     const text = messageInput.value.trim();
     
     if (!text) {
@@ -1157,7 +1248,7 @@
         showNotification(`أنت مكتوم لمدة ${diff} دقيقة أخرى`, 'error');
         return;
       } else {
-        remove(ref(db, `mutedUsers/${currentUser.userId}`));
+        await remove(ref(db, `mutedUsers/${currentUser.userId}`));
       }
     }
     
@@ -1184,19 +1275,25 @@
       }
     }
     
-    // إضافة الرسالة إلى Firebase
-    push(messagesRef, {
-      userId: currentUser.userId,
-      userName: currentUser.name + (currentUser.isAdmin ? ' (إدمن)' : ''),
-      userAvatar: currentUser.avatar,
-      text: text,
-      timestamp: serverTimestamp(),
-      isAdmin: currentUser.isAdmin
-    });
-    
-    // مسح حقل الإدخال
-    messageInput.value = '';
-    messageInput.focus();
+    try {
+      // إضافة الرسالة إلى Firebase
+      await push(messagesRef, {
+        userId: currentUser.userId,
+        userName: currentUser.name,
+        userAvatar: currentUser.avatar,
+        text: text,
+        timestamp: serverTimestamp(),
+        isAdmin: currentUser.isAdmin
+      });
+      
+      // مسح حقل الإدخال
+      messageInput.value = '';
+      messageInput.focus();
+      
+    } catch (error) {
+      console.error('خطأ في إرسال الرسالة:', error);
+      showNotification('حدث خطأ في إرسال الرسالة', 'error');
+    }
   }
 
   // إرسال بالزر
@@ -1211,9 +1308,15 @@
   });
 
   // استقبال الرسائل الجديدة
+  const processedMessages = new Set();
+  
   onChildAdded(messagesRef, (snapshot) => {
     const message = snapshot.val();
     const messageId = snapshot.key;
+    
+    // منع معالجة نفس الرسالة مرتين
+    if (processedMessages.has(messageId)) return;
+    processedMessages.add(messageId);
     
     // التحقق من كتم المستخدم المرسل
     if (mutedUsers[message.userId] && !currentUser.isAdmin) {
@@ -1227,7 +1330,16 @@
     
     // إنشاء عنصر الرسالة
     const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${message.userId === currentUser.userId ? 'self' : 'other'} ${message.isAdmin ? 'admin' : ''} ${message.isSystem ? 'system' : ''}`;
+    
+    // إضافة ID فريد للرسالة
+    messageDiv.id = `msg-${messageId}`;
+    
+    if (message.userId === 'system') {
+      messageDiv.className = 'message system';
+    } else {
+      messageDiv.className = `message ${message.userId === currentUser.userId ? 'self' : 'other'} ${message.isAdmin ? 'admin' : ''}`;
+    }
+    
     messageDiv.dataset.messageId = messageId;
     messageDiv.dataset.userId = message.userId;
     
@@ -1241,24 +1353,36 @@
     }
     
     // إذا كانت رسالة النظام
-    if (message.isSystem) {
+    if (message.userId === 'system') {
       messageDiv.innerHTML = `
         <div class="message-content">
           <div class="message-text">${message.text}</div>
         </div>
       `;
     } else {
+      // إضافة "(إدمن)" فقط إذا كان إدمن
+      const displayName = message.userName + (message.isAdmin ? ' (إدمن)' : '');
+      
       messageDiv.innerHTML = `
-        <img src="${message.userAvatar}" class="message-avatar" alt="${message.userName}">
+        <img src="${message.userAvatar}" class="message-avatar" alt="${message.userName}"
+             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(message.userName)}&background=6d8ed1&color=fff'">
         <div class="message-content">
           <div class="message-header">
-            <span class="message-name">${message.userName}</span>
+            <span class="message-name">${displayName}</span>
             <span class="message-time">${timeString}</span>
           </div>
           <div class="message-text">${message.text}</div>
         </div>
-        ${currentUser.isAdmin && !message.isSystem ? `<button class="delete-btn" onclick="deleteMessage('${messageId}')">×</button>` : ''}
+        ${currentUser.isAdmin && message.userId !== 'system' ? `<button class="delete-btn" onclick="deleteMessage('${messageId}')">×</button>` : ''}
       `;
+    }
+    
+    // إزالة الرسائل القديمة إذا تجاوز العدد 200
+    const allMessages = messagesContainer.querySelectorAll('.message');
+    if (allMessages.length > 200) {
+      for (let i = 0; i < allMessages.length - 200; i++) {
+        allMessages[i].remove();
+      }
     }
     
     messagesContainer.appendChild(messageDiv);
@@ -1277,8 +1401,13 @@
 
   // تحديث عدد الرسائل
   onValue(messagesRef, (snapshot) => {
-    const count = snapshot.size || 0;
-    messageCount.textContent = `${count} رسالة`;
+    if (snapshot.exists()) {
+      const messages = snapshot.val();
+      messageCountValue = Object.keys(messages).length;
+    } else {
+      messageCountValue = 0;
+    }
+    messageCount.textContent = `${messageCountValue} رسالة`;
   });
 
   // تحديث حالة الاتصال
@@ -1297,16 +1426,18 @@
   });
 
   // تحديث حالة اتصال المستخدم بانتظام
-  setInterval(() => {
+  const connectionInterval = setInterval(() => {
     if (currentUser.userId && navigator.onLine) {
       set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
     }
   }, 30000);
 
-  // تحديث حالة المستخدم عند الخروج
+  // تنظيف عند الخروج
   window.addEventListener('beforeunload', () => {
     if (currentUser.userId) {
+      // تحديث lastSeen فقط
       set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
+      clearInterval(connectionInterval);
     }
   });
 
