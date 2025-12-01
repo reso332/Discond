@@ -14,6 +14,8 @@
     --white: #fff;
     --border: #ddd;
     --success: #4CAF50;
+    --error: #ff4757;
+    --warning: #ffa502;
   }
   
   * {
@@ -79,6 +81,31 @@
     border-color: var(--primary);
   }
   
+  .admin-check {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 8px;
+  }
+  
+  .admin-check label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  
+  #adminPassword {
+    width: 150px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: none;
+  }
+  
   .login-btn {
     background: var(--primary);
     color: white;
@@ -134,40 +161,77 @@
     margin-bottom: 10px;
   }
   
-  .coins-section {
-    background: var(--secondary);
+  .admin-badge {
+    background: #ff4757;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    display: inline-block;
+    margin-right: 10px;
+  }
+  
+  /* أدوات الإدمن */
+  .admin-tools {
+    background: #fff5f5;
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 20px;
-    text-align: center;
+    border: 1px solid #ffcccc;
   }
   
-  .coins-amount {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--primary);
-    margin: 10px 0;
+  .admin-tools h3 {
+    color: #ff4757;
+    margin-bottom: 15px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   
-  .redeem-btn {
-    background: transparent;
-    border: 2px solid var(--primary);
-    color: var(--primary);
-    padding: 10px 20px;
+  .admin-tools h3:before {
+    content: "🛡️";
+  }
+  
+  .admin-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .admin-btn {
+    background: #ff4757;
+    color: white;
+    border: none;
+    padding: 10px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
-    width: 100%;
     transition: all 0.3s;
-    margin-top: 10px;
   }
   
-  .redeem-btn:hover {
+  .admin-btn:hover {
+    background: #ff6b81;
+  }
+  
+  .admin-btn.secondary {
     background: var(--primary);
-    color: white;
   }
   
-  /* نافذة إدخال الكود */
+  .admin-btn.secondary:hover {
+    background: var(--primary-light);
+  }
+  
+  .admin-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+  
+  /* نافذة التحكم */
   .modal {
     position: fixed;
     top: 0;
@@ -195,17 +259,6 @@
     text-align: center;
   }
   
-  .code-input {
-    width: 100%;
-    padding: 12px;
-    font-size: 18px;
-    text-align: center;
-    letter-spacing: 3px;
-    border: 2px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-  
   .modal-buttons {
     display: flex;
     gap: 10px;
@@ -230,6 +283,11 @@
     color: var(--text);
   }
   
+  .danger-btn {
+    background: #ff4757;
+    color: white;
+  }
+  
   /* منطقة الشات */
   .chat-area {
     display: flex;
@@ -247,6 +305,25 @@
     background: #fafafa;
   }
   
+  .chat-locked {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+  }
+  
+  .chat-locked h3 {
+    color: #ff4757;
+    margin-bottom: 10px;
+  }
+  
   .message {
     display: flex;
     margin-bottom: 20px;
@@ -262,6 +339,14 @@
     flex-direction: row-reverse;
   }
   
+  .message.admin {
+    border-right: 3px solid #ff4757;
+  }
+  
+  .message.muted {
+    opacity: 0.5;
+  }
+  
   .message-avatar {
     width: 40px;
     height: 40px;
@@ -275,11 +360,17 @@
     padding: 12px 16px;
     border-radius: 12px;
     max-width: calc(100% - 60px);
+    position: relative;
   }
   
   .message.self .message-content {
     background: var(--primary-light);
     color: white;
+  }
+  
+  .message.admin .message-content {
+    background: #fff5f5;
+    border: 1px solid #ffcccc;
   }
   
   .message-header {
@@ -291,6 +382,10 @@
   .message-name {
     font-weight: 600;
     font-size: 14px;
+  }
+  
+  .message.admin .message-name {
+    color: #ff4757;
   }
   
   .message-time {
@@ -306,11 +401,37 @@
     line-height: 1.5;
   }
   
+  .delete-btn {
+    position: absolute;
+    left: -25px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #ff4757;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    display: none;
+  }
+  
+  .message:hover .delete-btn {
+    display: block;
+  }
+  
   /* إدخال الرسالة */
   .input-area {
     padding: 20px;
     border-top: 1px solid var(--border);
     background: var(--white);
+    position: relative;
+  }
+  
+  .chat-locked .input-area {
+    filter: blur(2px);
+    pointer-events: none;
   }
   
   .message-input-row {
@@ -326,6 +447,11 @@
     font-size: 16px;
     resize: none;
     height: 60px;
+  }
+  
+  #message-input:disabled {
+    background: #f5f5f5;
+    cursor: not-allowed;
   }
   
   #message-input:focus {
@@ -344,7 +470,12 @@
     transition: background 0.3s;
   }
   
-  #send-btn:hover {
+  #send-btn:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  #send-btn:hover:not(:disabled) {
     background: var(--primary-light);
   }
   
@@ -354,6 +485,48 @@
     font-size: 14px;
     color: var(--text-light);
     background: var(--secondary);
+  }
+  
+  .chat-status {
+    background: #fff5f5;
+    color: #ff4757;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+  }
+  
+  /* إشعارات */
+  .notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 3000;
+    animation: slideIn 0.3s ease;
+    border-right: 4px solid var(--primary);
+    max-width: 300px;
+  }
+  
+  .notification.error {
+    border-right-color: #ff4757;
+  }
+  
+  .notification.success {
+    border-right-color: #4CAF50;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
   
   /* التعديل للجوال */
@@ -381,18 +554,29 @@
     <input type="text" id="userName" class="login-input" placeholder="اسم المستخدم" maxlength="20">
     <input type="text" id="userAvatar" class="login-input" placeholder="رابط الصورة (اختياري)">
     <p style="color: var(--text-light); font-size: 14px; margin-bottom: 20px;">يمكنك ترك رابط الصورة فارغاً</p>
+    
+    <div class="admin-check">
+      <label>
+        <input type="checkbox" id="isAdmin">
+        تسجيل دخول كإدمن
+      </label>
+      <input type="password" id="adminPassword" class="login-input" placeholder="كلمة الإدمن">
+    </div>
+    
     <button id="loginBtn" class="login-btn">ابدأ الدردشة</button>
   </div>
 </div>
 
-<!-- نافذة إدخال الكود -->
-<div id="codeModal" class="modal" style="display: none;">
+<!-- نافذة تحكم الإدمن -->
+<div id="adminModal" class="modal" style="display: none;">
   <div class="modal-content">
-    <h3>إدخال كود الشحن</h3>
-    <input type="text" id="codeInput" class="code-input" placeholder="أدخل الكود هنا" maxlength="10">
+    <h3 id="modalTitle">تحكم الإدمن</h3>
+    <div id="modalBody">
+      <!-- محتوى النافذة يتغير حسب الإجراء -->
+    </div>
     <div class="modal-buttons">
-      <button id="submitCodeBtn" class="modal-btn submit-btn">شحن</button>
-      <button id="cancelCodeBtn" class="modal-btn cancel-btn">إلغاء</button>
+      <button id="modalConfirmBtn" class="modal-btn submit-btn">تأكيد</button>
+      <button id="modalCancelBtn" class="modal-btn cancel-btn">إلغاء</button>
     </div>
   </div>
 </div>
@@ -403,6 +587,13 @@
     
     <!-- منطقة الدردشة -->
     <div class="chat-area">
+      <!-- حالة قفل الدردشة -->
+      <div id="chatLocked" class="chat-locked" style="display: none;">
+        <h3>🔒 الدردشة مغلقة مؤقتاً</h3>
+        <p id="lockReason">سيتم فتح الدردشة قريباً...</p>
+        <p id="lockTime" style="font-size: 12px; color: #666;"></p>
+      </div>
+      
       <div id="messagesContainer" class="messages-container">
         <!-- الرسائل تظهر هنا -->
       </div>
@@ -424,15 +615,39 @@
     <div class="sidebar">
       <div class="user-profile">
         <img id="profileAvatar" class="user-avatar" src="https://ui-avatars.com/api/?name=مستخدم&background=6d8ed1&color=fff" alt="صورة الملف">
-        <div class="user-name" id="profileName">اسم المستخدم</div>
+        <div class="user-name" id="profileName">
+          <span id="adminBadge" class="admin-badge" style="display: none;">إدمن</span>
+          اسم المستخدم
+        </div>
         <div style="color: var(--text-light); font-size: 14px;">مستخدم نشط</div>
       </div>
       
-      <div class="coins-section">
-        <div style="color: var(--text-light); font-size: 14px;">رصيدك الحالي</div>
-        <div class="coins-amount" id="coinsAmount">0</div>
-        <div style="color: var(--text-light); font-size: 14px;">نقطة</div>
-        <button id="redeemBtn" class="redeem-btn">شحن الرصيد بكود</button>
+      <!-- أدوات الإدمن (تظهر فقط للإدمن) -->
+      <div id="adminTools" class="admin-tools" style="display: none;">
+        <h3>أدوات الإدمن</h3>
+        
+        <div class="admin-buttons">
+          <button id="clearChatBtn" class="admin-btn">مسح الدردشة</button>
+          <button id="lockChatBtn" class="admin-btn">قفل الدردشة</button>
+        </div>
+        
+        <div class="admin-buttons">
+          <button id="muteUserBtn" class="admin-btn secondary">كتم مستخدم</button>
+          <button id="lockMessageBtn" class="admin-btn secondary">رسالة مقفلة</button>
+        </div>
+        
+        <input type="text" id="targetUserId" class="admin-input" placeholder="معرف المستخدم المستهدف">
+        <input type="text" id="lockDuration" class="admin-input" placeholder="مدة القفل بالدقائق">
+      </div>
+      
+      <!-- معلومات عامة -->
+      <div style="background: var(--secondary); padding: 15px; border-radius: 8px; margin-top: 20px;">
+        <h4 style="margin-bottom: 10px; color: var(--primary);">معلومات الدردشة</h4>
+        <div style="font-size: 14px; color: var(--text-light); line-height: 1.6;">
+          <div>عدد المستخدمين: <span id="userCount">0</span></div>
+          <div>حالة الدردشة: <span id="chatStatusText">مفتوحة</span></div>
+          <div>الإدمن النشط: <span id="activeAdmin">لا يوجد</span></div>
+        </div>
       </div>
     </div>
   </div>
@@ -460,7 +675,8 @@
   // مراجع قاعدة البيانات
   const messagesRef = ref(db, 'messages');
   const usersRef = ref(db, 'users');
-  const codesRef = ref(db, 'codes');
+  const chatSettingsRef = ref(db, 'settings/chat');
+  const mutedUsersRef = ref(db, 'mutedUsers');
 
   // العناصر في الصفحة
   const loginScreen = document.getElementById('loginScreen');
@@ -468,56 +684,109 @@
   const loginBtn = document.getElementById('loginBtn');
   const userNameInput = document.getElementById('userName');
   const userAvatarInput = document.getElementById('userAvatar');
+  const isAdminCheck = document.getElementById('isAdmin');
+  const adminPasswordInput = document.getElementById('adminPassword');
   const profileName = document.getElementById('profileName');
   const profileAvatar = document.getElementById('profileAvatar');
-  const coinsAmount = document.getElementById('coinsAmount');
-  const redeemBtn = document.getElementById('redeemBtn');
-  const codeModal = document.getElementById('codeModal');
-  const codeInput = document.getElementById('codeInput');
-  const submitCodeBtn = document.getElementById('submitCodeBtn');
-  const cancelCodeBtn = document.getElementById('cancelCodeBtn');
+  const adminBadge = document.getElementById('adminBadge');
+  const adminTools = document.getElementById('adminTools');
   const messagesContainer = document.getElementById('messagesContainer');
   const messageInput = document.getElementById('message-input');
   const sendBtn = document.getElementById('send-btn');
   const messageCount = document.getElementById('messageCount');
   const onlineStatus = document.getElementById('onlineStatus');
+  const chatLocked = document.getElementById('chatLocked');
+  const lockReason = document.getElementById('lockReason');
+  const lockTime = document.getElementById('lockTime');
+  const chatStatusText = document.getElementById('chatStatusText');
+  const userCount = document.getElementById('userCount');
+  const activeAdmin = document.getElementById('activeAdmin');
+
+  // أدوات الإدمن
+  const clearChatBtn = document.getElementById('clearChatBtn');
+  const lockChatBtn = document.getElementById('lockChatBtn');
+  const muteUserBtn = document.getElementById('muteUserBtn');
+  const lockMessageBtn = document.getElementById('lockMessageBtn');
+  const targetUserId = document.getElementById('targetUserId');
+  const lockDuration = document.getElementById('lockDuration');
+
+  // النافذة المنبثقة
+  const adminModal = document.getElementById('adminModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+  const modalCancelBtn = document.getElementById('modalCancelBtn');
+
+  // كلمة مرور الإدمن (يمكن تغييرها)
+  const ADMIN_PASSWORD = "admin123";
 
   // بيانات المستخدم الحالي
   let currentUser = {
     name: '',
     avatar: '',
-    coins: 0,
-    userId: ''
+    userId: '',
+    isAdmin: false
   };
+
+  // متغيرات التحكم
+  let currentAction = '';
+  let chatLockedUntil = null;
+  let mutedUsers = {};
+
+  // عرض إشعار
+  function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
 
   // تسجيل الدخول
   loginBtn.addEventListener('click', () => {
     const name = userNameInput.value.trim();
     const avatar = userAvatarInput.value.trim();
+    const wantsAdmin = isAdminCheck.checked;
+    const adminPassword = adminPasswordInput.value.trim();
     
     if (!name) {
-      alert('الرجاء إدخال اسم المستخدم');
+      showNotification('الرجاء إدخال اسم المستخدم', 'error');
+      return;
+    }
+    
+    if (wantsAdmin && adminPassword !== ADMIN_PASSWORD) {
+      showNotification('كلمة مرور الإدمن غير صحيحة', 'error');
       return;
     }
     
     // إنشاء معرف فريد للمستخدم
-    currentUser.userId = 'user_' + Date.now();
+    currentUser.userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     currentUser.name = name;
     currentUser.avatar = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6d8ed1&color=fff`;
-    currentUser.coins = 0;
+    currentUser.isAdmin = wantsAdmin;
     
     // حفظ بيانات المستخدم في Firebase
     set(ref(db, `users/${currentUser.userId}`), {
       name: currentUser.name,
       avatar: currentUser.avatar,
-      coins: currentUser.coins,
-      lastSeen: serverTimestamp()
+      isAdmin: currentUser.isAdmin,
+      lastSeen: serverTimestamp(),
+      joinedAt: serverTimestamp()
     });
     
     // تحديث واجهة المستخدم
     profileName.textContent = currentUser.name;
     profileAvatar.src = currentUser.avatar;
-    coinsAmount.textContent = currentUser.coins;
+    
+    if (currentUser.isAdmin) {
+      adminBadge.style.display = 'inline-block';
+      adminTools.style.display = 'block';
+      profileName.style.color = '#ff4757';
+    }
     
     // إخفاء شاشة التسجيل وإظهار الشات
     loginScreen.style.display = 'none';
@@ -526,83 +795,349 @@
     // التركيز على حقل الرسالة
     messageInput.focus();
     
-    // تحديث الرصيد بانتظام
-    monitorUserCoins();
+    // مراقبة إعدادات الدردشة
+    monitorChatSettings();
+    // مراقبة المستخدمين المكتومين
+    monitorMutedUsers();
+    // مراقبة عدد المستخدمين
+    monitorUsers();
   });
 
-  // مراقبة رصيد المستخدم
-  function monitorUserCoins() {
-    const userCoinsRef = ref(db, `users/${currentUser.userId}/coins`);
-    onValue(userCoinsRef, (snapshot) => {
+  // التحكم بعرض كلمة مرور الإدمن
+  isAdminCheck.addEventListener('change', function() {
+    adminPasswordInput.style.display = this.checked ? 'block' : 'none';
+    if (!this.checked) {
+      adminPasswordInput.value = '';
+    }
+  });
+
+  // مراقبة إعدادات الدردشة
+  function monitorChatSettings() {
+    onValue(chatSettingsRef, (snapshot) => {
       if (snapshot.exists()) {
-        currentUser.coins = snapshot.val();
-        coinsAmount.textContent = currentUser.coins;
+        const settings = snapshot.val();
+        
+        // التحقق من حالة القفل
+        if (settings.isLocked) {
+          chatLocked.style.display = 'flex';
+          messageInput.disabled = true;
+          sendBtn.disabled = true;
+          chatStatusText.textContent = 'مقفولة';
+          chatStatusText.style.color = '#ff4757';
+          
+          lockReason.textContent = settings.lockReason || 'الدردشة مغلقة مؤقتاً من قبل الإدمن';
+          
+          if (settings.lockedUntil) {
+            const lockDate = new Date(settings.lockedUntil);
+            const now = new Date();
+            const diff = lockDate - now;
+            
+            if (diff > 0) {
+              const minutes = Math.ceil(diff / (1000 * 60));
+              lockTime.textContent = `ستفتح بعد ${minutes} دقيقة`;
+              chatLockedUntil = settings.lockedUntil;
+            } else {
+              // انتهت مدة القفل
+              set(chatSettingsRef, {
+                isLocked: false,
+                lockedBy: null,
+                lockReason: null,
+                lockedUntil: null,
+                lockedAt: null
+              });
+            }
+          }
+        } else {
+          chatLocked.style.display = 'none';
+          messageInput.disabled = false;
+          sendBtn.disabled = false;
+          chatStatusText.textContent = 'مفتوحة';
+          chatStatusText.style.color = '#4CAF50';
+          chatLockedUntil = null;
+        }
+        
+        // عرض الإدمن النشط
+        if (settings.lockedBy && settings.isLocked) {
+          const adminRef = ref(db, `users/${settings.lockedBy}`);
+          onValue(adminRef, (adminSnapshot) => {
+            if (adminSnapshot.exists()) {
+              activeAdmin.textContent = adminSnapshot.val().name;
+            }
+          }, { onlyOnce: true });
+        } else {
+          activeAdmin.textContent = 'لا يوجد';
+        }
       }
     });
   }
 
-  // فتح نافذة إدخال الكود
-  redeemBtn.addEventListener('click', () => {
-    codeModal.style.display = 'flex';
-    codeInput.focus();
-  });
+  // مراقبة المستخدمين المكتومين
+  function monitorMutedUsers() {
+    onValue(mutedUsersRef, (snapshot) => {
+      if (snapshot.exists()) {
+        mutedUsers = snapshot.val();
+      } else {
+        mutedUsers = {};
+      }
+    });
+  }
 
-  // إغلاق نافذة الكود
-  cancelCodeBtn.addEventListener('click', () => {
-    codeModal.style.display = 'none';
-    codeInput.value = '';
-  });
+  // مراقبة عدد المستخدمين
+  function monitorUsers() {
+    onValue(usersRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const users = snapshot.val();
+        const count = Object.keys(users).length;
+        userCount.textContent = count;
+      } else {
+        userCount.textContent = '0';
+      }
+    });
+  }
 
-  // تقديم الكود للشحن
-  submitCodeBtn.addEventListener('click', async () => {
-    const code = codeInput.value.trim().toUpperCase();
+  // إظهار نافذة الإدمن
+  function showAdminModal(title, body, confirmText = 'تأكيد', cancelText = 'إلغاء', action = '') {
+    modalTitle.textContent = title;
+    modalBody.innerHTML = body;
+    modalConfirmBtn.textContent = confirmText;
+    modalCancelBtn.textContent = cancelText;
+    currentAction = action;
+    adminModal.style.display = 'flex';
+  }
+
+  // إخفاء نافذة الإدمن
+  function hideAdminModal() {
+    adminModal.style.display = 'none';
+    currentAction = '';
+    targetUserId.value = '';
+    lockDuration.value = '';
+  }
+
+  // زر مسح الدردشة
+  clearChatBtn.addEventListener('click', () => {
+    if (!currentUser.isAdmin) return;
     
-    if (!code) {
-      alert('الرجاء إدخال الكود');
-      return;
+    showAdminModal(
+      'مسح جميع الرسائل',
+      '<p>هل أنت متأكد من مسح جميع الرسائل؟</p><p style="color: #ff4757; font-size: 14px;">هذا الإجراء لا يمكن التراجع عنه</p>',
+      'مسح الكل',
+      'إلغاء',
+      'clear_chat'
+    );
+  });
+
+  // زر قفل الدردشة
+  lockChatBtn.addEventListener('click', () => {
+    if (!currentUser.isAdmin) return;
+    
+    showAdminModal(
+      'قفل الدردشة',
+      `
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 8px;">المدة (بالدقائق):</label>
+        <input type="number" id="modalLockDuration" class="admin-input" value="30" min="1" max="1440">
+      </div>
+      <div>
+        <label style="display: block; margin-bottom: 8px;">السبب (اختياري):</label>
+        <textarea id="modalLockReason" class="admin-input" placeholder="سبب قفل الدردشة..." rows="3"></textarea>
+      </div>
+      `,
+      'قفل الدردشة',
+      'إلغاء',
+      'lock_chat'
+    );
+  });
+
+  // زر كتم مستخدم
+  muteUserBtn.addEventListener('click', () => {
+    if (!currentUser.isAdmin) return;
+    
+    showAdminModal(
+      'كتم مستخدم',
+      `
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 8px;">معرف المستخدم:</label>
+        <input type="text" id="modalTargetUser" class="admin-input" placeholder="user_123456789...">
+      </div>
+      <div>
+        <label style="display: block; margin-bottom: 8px;">المدة (بالدقائق):</label>
+        <input type="number" id="modalMuteDuration" class="admin-input" value="60" min="1" max="10080">
+      </div>
+      `,
+      'كتم المستخدم',
+      'إلغاء',
+      'mute_user'
+    );
+  });
+
+  // زر رسالة مقفلة
+  lockMessageBtn.addEventListener('click', () => {
+    if (!currentUser.isAdmin) return;
+    
+    showAdminModal(
+      'إرسال رسالة مقفلة',
+      `
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 8px;">نص الرسالة:</label>
+        <textarea id="modalLockedMessage" class="admin-input" placeholder="اكتب الرسالة المقفلة هنا..." rows="4"></textarea>
+      </div>
+      <div>
+        <label style="display: block; margin-bottom: 8px;">المدة (بالدقائق):</label>
+        <input type="number" id="modalMessageLockDuration" class="admin-input" value="5" min="1" max="1440">
+      </div>
+      `,
+      'إرسال',
+      'إلغاء',
+      'locked_message'
+    );
+  });
+
+  // تأكيد إجراء الإدمن
+  modalConfirmBtn.addEventListener('click', () => {
+    switch (currentAction) {
+      case 'clear_chat':
+        // مسح جميع الرسائل
+        remove(messagesRef);
+        showNotification('تم مسح جميع الرسائل', 'success');
+        break;
+        
+      case 'lock_chat':
+        const duration = parseInt(document.getElementById('modalLockDuration').value) || 30;
+        const reason = document.getElementById('modalLockReason').value.trim();
+        
+        const lockUntil = new Date();
+        lockUntil.setMinutes(lockUntil.getMinutes() + duration);
+        
+        set(chatSettingsRef, {
+          isLocked: true,
+          lockedBy: currentUser.userId,
+          lockReason: reason || 'الدردشة مغلقة مؤقتاً من قبل الإدمن',
+          lockedUntil: lockUntil.toISOString(),
+          lockedAt: serverTimestamp()
+        });
+        
+        showNotification(`تم قفل الدردشة لمدة ${duration} دقيقة`, 'success');
+        break;
+        
+      case 'mute_user':
+        const targetUser = document.getElementById('modalTargetUser').value.trim();
+        const muteDuration = parseInt(document.getElementById('modalMuteDuration').value) || 60;
+        
+        if (!targetUser) {
+          showNotification('الرجاء إدخال معرف المستخدم', 'error');
+          return;
+        }
+        
+        const muteUntil = new Date();
+        muteUntil.setMinutes(muteUntil.getMinutes() + muteDuration);
+        
+        set(ref(db, `mutedUsers/${targetUser}`), {
+          mutedBy: currentUser.userId,
+          mutedUntil: muteUntil.toISOString(),
+          mutedAt: serverTimestamp()
+        });
+        
+        showNotification(`تم كتم المستخدم لمدة ${muteDuration} دقيقة`, 'success');
+        break;
+        
+      case 'locked_message':
+        const lockedMessage = document.getElementById('modalLockedMessage').value.trim();
+        const messageLockDuration = parseInt(document.getElementById('modalMessageLockDuration').value) || 5;
+        
+        if (!lockedMessage) {
+          showNotification('الرجاء كتابة الرسالة', 'error');
+          return;
+        }
+        
+        // قفل الدردشة أولاً
+        const messageLockUntil = new Date();
+        messageLockUntil.setMinutes(messageLockUntil.getMinutes() + messageLockDuration);
+        
+        set(chatSettingsRef, {
+          isLocked: true,
+          lockedBy: currentUser.userId,
+          lockReason: 'رسالة مقفلة من الإدمن',
+          lockedUntil: messageLockUntil.toISOString(),
+          lockedAt: serverTimestamp()
+        });
+        
+        // إرسال الرسالة المقفلة
+        setTimeout(() => {
+          push(messagesRef, {
+            userId: currentUser.userId,
+            userName: currentUser.name + ' (إدمن)',
+            userAvatar: currentUser.avatar,
+            text: '🔒 ' + lockedMessage,
+            timestamp: serverTimestamp(),
+            isAdminMessage: true
+          });
+          
+          // فتح الدردشة بعد الرسالة
+          setTimeout(() => {
+            set(chatSettingsRef, {
+              isLocked: false,
+              lockedBy: null,
+              lockReason: null,
+              lockedUntil: null,
+              lockedAt: null
+            });
+          }, messageLockDuration * 60 * 1000);
+          
+        }, 1000);
+        
+        showNotification(`تم إرسال الرسالة المقفلة لمدة ${messageLockDuration} دقيقة`, 'success');
+        break;
     }
     
-    // التحقق من وجود الكود في قاعدة البيانات
-    const codeRef = ref(db, `codes/${code}`);
-    
-    onValue(codeRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const codeData = snapshot.val();
-        const codeValue = codeData.value || 0;
-        
-        // إضافة القيمة إلى رصيد المستخدم
-        const newCoins = currentUser.coins + codeValue;
-        set(ref(db, `users/${currentUser.userId}/coins`), newCoins);
-        
-        // حذف الكود بعد استخدامه
-        remove(codeRef);
-        
-        // إغلاق النافذة وإظهار رسالة نجاح
-        codeModal.style.display = 'none';
-        codeInput.value = '';
-        alert(`تم شحن ${codeValue} نقطة بنجاح!`);
-      } else {
-        alert('الكود غير صالح أو منتهي الصلاحية');
-      }
-    }, { onlyOnce: true });
+    hideAdminModal();
   });
+
+  // إلغاء إجراء الإدمن
+  modalCancelBtn.addEventListener('click', hideAdminModal);
 
   // إرسال رسالة
   function sendMessage() {
     const text = messageInput.value.trim();
     
     if (!text) {
-      alert('الرجاء كتابة رسالة');
+      showNotification('الرجاء كتابة رسالة', 'error');
       return;
+    }
+    
+    // التحقق من كتم المستخدم
+    if (mutedUsers[currentUser.userId]) {
+      const muteUntil = new Date(mutedUsers[currentUser.userId].mutedUntil);
+      const now = new Date();
+      
+      if (muteUntil > now) {
+        const diff = Math.ceil((muteUntil - now) / (1000 * 60));
+        showNotification(`أنت مكتوم لمدة ${diff} دقيقة أخرى`, 'error');
+        return;
+      } else {
+        // إزالة الكتم بعد انتهاء المدة
+        remove(ref(db, `mutedUsers/${currentUser.userId}`));
+      }
+    }
+    
+    // التحقق من قفل الدردشة
+    if (chatLockedUntil) {
+      const lockUntil = new Date(chatLockedUntil);
+      const now = new Date();
+      
+      if (lockUntil > now) {
+        showNotification('الدردشة مغلقة مؤقتاً', 'error');
+        return;
+      }
     }
     
     // إضافة الرسالة إلى Firebase
     push(messagesRef, {
       userId: currentUser.userId,
-      userName: currentUser.name,
+      userName: currentUser.name + (currentUser.isAdmin ? ' (إدمن)' : ''),
       userAvatar: currentUser.avatar,
       text: text,
-      timestamp: serverTimestamp()
+      timestamp: serverTimestamp(),
+      isAdmin: currentUser.isAdmin
     });
     
     // مسح حقل الإدخال
@@ -626,9 +1161,22 @@
     const message = snapshot.val();
     const messageId = snapshot.key;
     
+    // التحقق من كتم المستخدم المرسل
+    if (mutedUsers[message.userId] && !currentUser.isAdmin) {
+      const muteUntil = new Date(mutedUsers[message.userId].mutedUntil);
+      const now = new Date();
+      
+      if (muteUntil > now) {
+        // لا تظهر رسائل المستخدم المكتوم للمستخدمين العاديين
+        return;
+      }
+    }
+    
     // إنشاء عنصر الرسالة
     const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${message.userId === currentUser.userId ? 'self' : 'other'}`;
+    messageDiv.className = `message ${message.userId === currentUser.userId ? 'self' : 'other'} ${message.isAdmin ? 'admin' : ''}`;
+    messageDiv.dataset.messageId = messageId;
+    messageDiv.dataset.userId = message.userId;
     
     // تنسيق الوقت
     let timeString = 'الآن';
@@ -648,11 +1196,22 @@
         </div>
         <div class="message-text">${message.text}</div>
       </div>
+      ${currentUser.isAdmin ? `<button class="delete-btn" onclick="deleteMessage('${messageId}')">×</button>` : ''}
     `;
     
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   });
+
+  // دالة حذف الرسالة (للاستدعاء من onclick)
+  window.deleteMessage = function(messageId) {
+    if (!currentUser.isAdmin) return;
+    
+    if (confirm('هل تريد حذف هذه الرسالة؟')) {
+      remove(ref(db, `messages/${messageId}`));
+      showNotification('تم حذف الرسالة', 'success');
+    }
+  };
 
   // تحديث عدد الرسائل
   onValue(messagesRef, (snapshot) => {
@@ -671,26 +1230,12 @@
     onlineStatus.style.color = '#ff4757';
   });
 
-  // إدخال عينات كودات في قاعدة البيانات (للتجربة)
-  function createSampleCodes() {
-    // كودات تجريبية - في التطبيق الحقيقي يتم إنشاؤها من لوحة تحكم
-    const sampleCodes = [
-      { code: 'WELCOME100', value: 100 },
-      { code: 'TEST50', value: 50 },
-      { code: 'CHAT200', value: 200 }
-    ];
-    
-    sampleCodes.forEach(sample => {
-      const codeRef = ref(db, `codes/${sample.code}`);
-      set(codeRef, {
-        value: sample.value,
-        createdAt: serverTimestamp()
-      });
-    });
-  }
-  
-  // إنشاء الكودات التجريبية مرة واحدة فقط
-  createSampleCodes();
+  // تحديث حالة المستخدم عند الخروج
+  window.addEventListener('beforeunload', () => {
+    if (currentUser.userId) {
+      set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
+    }
+  });
 
 </script>
 
