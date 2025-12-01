@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دردشة لطيفة</title>
+<style>
+  :root {
+    --primary: #6d8ed1;
+    --primary-light: #8fa8e0;
+    --secondary: #e8f0fe;
+    --text: #333;
+    --text-light: #666;
+    --white: #fff;
+    --border: #ddd;
+    --success: #4CAF50;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8f0fe 100%);
+    min-height: 100vh;
+    color: var(--text);
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* تسجيل الدخول */
+  .login-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .login-box {
+    background: var(--white);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+  
+  .login-box h2 {
+    color: var(--primary);
+    margin-bottom: 30px;
+    font-weight: 500;
+  }
+  
+  .login-input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 16px;
+  }
+  
+  .login-input:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+  
+  .login-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s;
+  }
+  
+  .login-btn:hover {
+    background: var(--primary-light);
+  }
+  
+  /* الشات الرئيسي */
+  .chat-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    height: calc(100vh - 40px);
+  }
+  
+  /* الشريط الجانبي */
+  .sidebar {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .user-profile {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  
+  .user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid var(--secondary);
+  }
+  
+  .user-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 10px;
+  }
+  
+  .coins-section {
+    background: var(--secondary);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .coins-amount {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 10px 0;
+  }
+  
+  .redeem-btn {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+    transition: all 0.3s;
+    margin-top: 10px;
+  }
+  
+  .redeem-btn:hover {
+    background: var(--primary);
+    color: white;
+  }
+  
+  /* نافذة إدخال الكود */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+  
+  .modal-content {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+  }
+  
+  .modal h3 {
+    color: var(--primary);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .code-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    text-align: center;
+    letter-spacing: 3px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .modal-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .submit-btn {
+    background: var(--primary);
+    color: white;
+  }
+  
+  .cancel-btn {
+    background: var(--border);
+    color: var(--text);
+  }
+  
+  /* منطقة الشات */
+  .chat-area {
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .messages-container {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: #fafafa;
+  }
+  
+  .message {
+    display: flex;
+    margin-bottom: 20px;
+    max-width: 80%;
+  }
+  
+  .message.other {
+    align-self: flex-start;
+  }
+  
+  .message.self {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+  
+  .message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 10px;
+  }
+  
+  .message-content {
+    background: var(--secondary);
+    padding: 12px 16px;
+    border-radius: 12px;
+    max-width: calc(100% - 60px);
+  }
+  
+  .message.self .message-content {
+    background: var(--primary-light);
+    color: white;
+  }
+  
+  .message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+  
+  .message-name {
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  .message-time {
+    font-size: 12px;
+    color: var(--text-light);
+  }
+  
+  .message.self .message-time {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .message-text {
+    line-height: 1.5;
+  }
+  
+  /* إدخال الرسالة */
+  .input-area {
+    padding: 20px;
+    border-top: 1px solid var(--border);
+    background: var(--white);
+  }
+  
+  .message-input-row {
+    display: flex;
+    gap: 10px;
+  }
+  
+  #message-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 16px;
+    resize: none;
+    height: 60px;
+  }
+  
+  #message-input:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+  
+  #send-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+  }
+  
+  #send-btn:hover {
+    background: var(--primary-light);
+  }
+  
+  .status {
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    color: var(--text-light);
+    background: var(--secondary);
+  }
+  
+  /* التعديل للجوال */
+  @media (max-width: 768px) {
+    .chat-layout {
+      grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
+      display: none;
+    }
+    
+    .message {
+      max-width: 90%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- شاشة تسجيل الدخول -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <h2>مرحباً في الدردشة اللطيفة</h2>
+    <input type="text" id="userName" class="login-input" placeholder="اسم المستخدم" maxlength="20">
+    <input type="text" id="userAvatar" class="login-input" placeholder="رابط الصورة (اختياري)">
+    <p style="color: var(--text-light); font-size: 14px; margin-bottom: 20px;">يمكنك ترك رابط الصورة فارغاً</p>
+    <button id="loginBtn" class="login-btn">ابدأ الدردشة</button>
+  </div>
+</div>
+
+<!-- نافذة إدخال الكود -->
+<div id="codeModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h3>إدخال كود الشحن</h3>
+    <input type="text" id="codeInput" class="code-input" placeholder="أدخل الكود هنا" maxlength="10">
+    <div class="modal-buttons">
+      <button id="submitCodeBtn" class="modal-btn submit-btn">شحن</button>
+      <button id="cancelCodeBtn" class="modal-btn cancel-btn">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- الشات الرئيسي -->
+<div class="container" style="display: none;" id="mainApp">
+  <div class="chat-layout">
+    
+    <!-- منطقة الدردشة -->
+    <div class="chat-area">
+      <div id="messagesContainer" class="messages-container">
+        <!-- الرسائل تظهر هنا -->
+      </div>
+      
+      <div class="input-area">
+        <div class="message-input-row">
+          <textarea id="message-input" placeholder="اكتب رسالتك هنا..."></textarea>
+          <button id="send-btn">إرسال</button>
+        </div>
+      </div>
+      
+      <div class="status">
+        <span id="onlineStatus">✓ متصل</span>
+        • <span id="messageCount">0 رسالة</span>
+      </div>
+    </div>
+    
+    <!-- الشريط الجانبي -->
+    <div class="sidebar">
+      <div class="user-profile">
+        <img id="profileAvatar" class="user-avatar" src="https://ui-avatars.com/api/?name=مستخدم&background=6d8ed1&color=fff" alt="صورة الملف">
+        <div class="user-name" id="profileName">اسم المستخدم</div>
+        <div style="color: var(--text-light); font-size: 14px;">مستخدم نشط</div>
+      </div>
+      
+      <div class="coins-section">
+        <div style="color: var(--text-light); font-size: 14px;">رصيدك الحالي</div>
+        <div class="coins-amount" id="coinsAmount">0</div>
+        <div style="color: var(--text-light); font-size: 14px;">نقطة</div>
+        <button id="redeemBtn" class="redeem-btn">شحن الرصيد بكود</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { getDatabase, ref, push, onChildAdded, onValue, set, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+
+  // إعداد Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyC8jmHxQ5tIwuh9J_Y9TpovequFVigiXYw",
+    authDomain: "disconde-17f43.firebaseapp.com",
+    databaseURL: "https://disconde-17f43-default-rtdb.firebaseio.com",
+    projectId: "disconde-17f43",
+    storageBucket: "disconde-17f43.firebasestorage.app",
+    messagingSenderId: "1009347423340",
+    appId: "1:1009347423340:web:a86dee5c542544ab223c49",
+    measurementId: "G-8Q05LMTRDX"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // مراجع قاعدة البيانات
+  const messagesRef = ref(db, 'messages');
+  const usersRef = ref(db, 'users');
+  const codesRef = ref(db, 'codes');
+
+  // العناصر في الصفحة
+  const loginScreen = document.getElementById('loginScreen');
+  const mainApp = document.getElementById('mainApp');
+  const loginBtn = document.getElementById('loginBtn');
+  const userNameInput = document.getElementById('userName');
+  const userAvatarInput = document.getElementById('userAvatar');
+  const profileName = document.getElementById('profileName');
+  const profileAvatar = document.getElementById('profileAvatar');
+  const coinsAmount = document.getElementById('coinsAmount');
+  const redeemBtn = document.getElementById('redeemBtn');
+  const codeModal = document.getElementById('codeModal');
+  const codeInput = document.getElementById('codeInput');
+  const submitCodeBtn = document.getElementById('submitCodeBtn');
+  const cancelCodeBtn = document.getElementById('cancelCodeBtn');
+  const messagesContainer = document.getElementById('messagesContainer');
+  const messageInput = document.getElementById('message-input');
+  const sendBtn = document.getElementById('send-btn');
+  const messageCount = document.getElementById('messageCount');
+  const onlineStatus = document.getElementById('onlineStatus');
+
+  // بيانات المستخدم الحالي
+  let currentUser = {
+    name: '',
+    avatar: '',
+    coins: 0,
+    userId: ''
+  };
+
+  // تسجيل الدخول
+  loginBtn.addEventListener('click', () => {
+    const name = userNameInput.value.trim();
+    const avatar = userAvatarInput.value.trim();
+    
+    if (!name) {
+      alert('الرجاء إدخال اسم المستخدم');
+      return;
+    }
+    
+    // إنشاء معرف فريد للمستخدم
+    currentUser.userId = 'user_' + Date.now();
+    currentUser.name = name;
+    currentUser.avatar = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6d8ed1&color=fff`;
+    currentUser.coins = 0;
+    
+    // حفظ بيانات المستخدم في Firebase
+    set(ref(db, `users/${currentUser.userId}`), {
+      name: currentUser.name,
+      avatar: currentUser.avatar,
+      coins: currentUser.coins,
+      lastSeen: serverTimestamp()
+    });
+    
+    // تحديث واجهة المستخدم
+    profileName.textContent = currentUser.name;
+    profileAvatar.src = currentUser.avatar;
+    coinsAmount.textContent = currentUser.coins;
+    
+    // إخفاء شاشة التسجيل وإظهار الشات
+    loginScreen.style.display = 'none';
+    mainApp.style.display = 'block';
+    
+    // التركيز على حقل الرسالة
+    messageInput.focus();
+    
+    // تحديث الرصيد بانتظام
+    monitorUserCoins();
+  });
+
+  // مراقبة رصيد المستخدم
+  function monitorUserCoins() {
+    const userCoinsRef = ref(db, `users/${currentUser.userId}/coins`);
+    onValue(userCoinsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        currentUser.coins = snapshot.val();
+        coinsAmount.textContent = currentUser.coins;
+      }
+    });
+  }
+
+  // فتح نافذة إدخال الكود
+  redeemBtn.addEventListener('click', () => {
+    codeModal.style.display = 'flex';
+    codeInput.focus();
+  });
+
+  // إغلاق نافذة الكود
+  cancelCodeBtn.addEventListener('click', () => {
+    codeModal.style.display = 'none';
+    codeInput.value = '';
+  });
+
+  // تقديم الكود للشحن
+  submitCodeBtn.addEventListener('click', async () => {
+    const code = codeInput.value.trim().toUpperCase();
+    
+    if (!code) {
+      alert('الرجاء إدخال الكود');
+      return;
+    }
+    
+    // التحقق من وجود الكود في قاعدة البيانات
+    const codeRef = ref(db, `codes/${code}`);
+    
+    onValue(codeRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const codeData = snapshot.val();
+        const codeValue = codeData.value || 0;
+        
+        // إضافة القيمة إلى رصيد المستخدم
+        const newCoins = currentUser.coins + codeValue;
+        set(ref(db, `users/${currentUser.userId}/coins`), newCoins);
+        
+        // حذف الكود بعد استخدامه
+        remove(codeRef);
+        
+        // إغلاق النافذة وإظهار رسالة نجاح
+        codeModal.style.display = 'none';
+        codeInput.value = '';
+        alert(`تم شحن ${codeValue} نقطة بنجاح!`);
+      } else {
+        alert('الكود غير صالح أو منتهي الصلاحية');
+      }
+    }, { onlyOnce: true });
+  });
+
+  // إرسال رسالة
+  function sendMessage() {
+    const text = messageInput.value.trim();
+    
+    if (!text) {
+      alert('الرجاء كتابة رسالة');
+      return;
+    }
+    
+    // إضافة الرسالة إلى Firebase
+    push(messagesRef, {
+      userId: currentUser.userId,
+      userName: currentUser.name,
+      userAvatar: currentUser.avatar,
+      text: text,
+      timestamp: serverTimestamp()
+    });
+    
+    // مسح حقل الإدخال
+    messageInput.value = '';
+    messageInput.focus();
+  }
+
+  // إرسال بالزر
+  sendBtn.addEventListener('click', sendMessage);
+
+  // إرسال بالإنتر
+  messageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // استقبال الرسائل الجديدة
+  onChildAdded(messagesRef, (snapshot) => {
+    const message = snapshot.val();
+    const messageId = snapshot.key;
+    
+    // إنشاء عنصر الرسالة
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${message.userId === currentUser.userId ? 'self' : 'other'}`;
+    
+    // تنسيق الوقت
+    let timeString = 'الآن';
+    if (message.timestamp) {
+      const time = new Date(message.timestamp);
+      if (!isNaN(time.getTime())) {
+        timeString = time.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+      }
+    }
+    
+    messageDiv.innerHTML = `
+      <img src="${message.userAvatar}" class="message-avatar" alt="${message.userName}">
+      <div class="message-content">
+        <div class="message-header">
+          <span class="message-name">${message.userName}</span>
+          <span class="message-time">${timeString}</span>
+        </div>
+        <div class="message-text">${message.text}</div>
+      </div>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  });
+
+  // تحديث عدد الرسائل
+  onValue(messagesRef, (snapshot) => {
+    const count = snapshot.size || 0;
+    messageCount.textContent = `${count} رسالة`;
+  });
+
+  // تحديث حالة الاتصال
+  window.addEventListener('online', () => {
+    onlineStatus.textContent = '✓ متصل';
+    onlineStatus.style.color = '';
+  });
+  
+  window.addEventListener('offline', () => {
+    onlineStatus.textContent = '✗ غير متصل';
+    onlineStatus.style.color = '#ff4757';
+  });
+
+  // إدخال عينات كودات في قاعدة البيانات (للتجربة)
+  function createSampleCodes() {
+    // كودات تجريبية - في التطبيق الحقيقي يتم إنشاؤها من لوحة تحكم
+    const sampleCodes = [
+      { code: 'WELCOME100', value: 100 },
+      { code: 'TEST50', value: 50 },
+      { code: 'CHAT200', value: 200 }
+    ];
+    
+    sampleCodes.forEach(sample => {
+      const codeRef = ref(db, `codes/${sample.code}`);
+      set(codeRef, {
+        value: sample.value,
+        createdAt: serverTimestamp()
+      });
+    });
+  }
+  
+  // إنشاء الكودات التجريبية مرة واحدة فقط
+  createSampleCodes();
+
+</script>
+
+</body>
+</html>
