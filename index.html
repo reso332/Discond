@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>دردشة لطيفة</title>
+<title>Discond</title>
 <style>
   :root {
     --primary: #6d8ed1;
@@ -216,15 +216,6 @@
     border-radius: 10px;
     font-size: 11px;
     flex-shrink: 0;
-  }
-  
-  .online-count {
-    background: var(--primary);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 15px;
-    font-size: 12px;
-    margin-right: 10px;
   }
   
   /* نافذة الأوامر */
@@ -580,7 +571,7 @@
   }
   
   .notification.error {
-    border-right-color: #ff4757;
+    border-right-color = #ff4757;
   }
   
   .notification.success {
@@ -668,7 +659,6 @@
       <div class="status">
         <span id="onlineStatus">✓ متصل</span>
         • <span id="messageCount">0 رسالة</span>
-        • <span id="onlineUsersCount">0 متصل</span>
       </div>
     </div>
     
@@ -683,17 +673,6 @@
         <div style="color: var(--text-light); font-size: 14px; margin-bottom: 10px;">مستخدم نشط</div>
         <div style="color: var(--primary); font-size: 12px; background: #e8f0fe; padding: 5px 10px; border-radius: 15px;">
           ID: <span id="userIdText">---</span>
-        </div>
-      </div>
-      
-      <!-- قائمة المستخدمين المتصلين -->
-      <div class="online-users">
-        <h3>
-          <span class="online-count" id="onlineCount">0</span>
-          المستخدمون المتصلون
-        </h3>
-        <div class="users-list" id="usersList">
-          <!-- المستخدمون يظهرون هنا -->
         </div>
       </div>
     </div>
@@ -740,9 +719,6 @@
   const sendBtn = document.getElementById('send-btn');
   const messageCount = document.getElementById('messageCount');
   const onlineStatus = document.getElementById('onlineStatus');
-  const onlineUsersCount = document.getElementById('onlineUsersCount');
-  const onlineCount = document.getElementById('onlineCount');
-  const usersList = document.getElementById('usersList');
   const chatLocked = document.getElementById('chatLocked');
   const lockReason = document.getElementById('lockReason');
   const lockTime = document.getElementById('lockTime');
@@ -753,21 +729,28 @@
   const commandUsersList = document.getElementById('commandUsersList');
   const commandCancelBtn = document.getElementById('commandCancelBtn');
 
+  // دالة لإنشاء ID قصير
+  function generateShortId() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
   // بيانات المستخدم الحالي
   let currentUser = {
     name: '',
     avatar: '',
     userId: '',
-    isAdmin: false,
-    isOnline: true
+    shortId: '',
+    isAdmin: false
   };
 
   // متغيرات التحكم
   let chatLockedUntil = null;
   let mutedUsers = {};
-  let onlineUsers = {};
-  let currentCommand = '';
-  let selectedUser = null;
   let messageCountValue = 0;
 
   // عرض إشعار
@@ -793,8 +776,9 @@
       return;
     }
     
-    // إنشاء معرف فريد للمستخدم
-    currentUser.userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    // إنشاء معرف فريد قصير للمستخدم
+    currentUser.userId = 'user_' + Date.now();
+    currentUser.shortId = generateShortId(); // ID قصير 8 أحرف
     currentUser.name = name;
     currentUser.avatar = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6d8ed1&color=fff`;
     currentUser.isAdmin = false;
@@ -803,17 +787,17 @@
       // حفظ بيانات المستخدم في Firebase
       await set(ref(db, `users/${currentUser.userId}`), {
         name: currentUser.name,
+        shortId: currentUser.shortId, // حفظ الـ ID القصير
         avatar: currentUser.avatar,
         isAdmin: false,
         lastSeen: serverTimestamp(),
-        joinedAt: serverTimestamp(),
-        isOnline: true
+        joinedAt: serverTimestamp()
       });
       
       // تحديث واجهة المستخدم
       profileName.textContent = currentUser.name;
       profileAvatar.src = currentUser.avatar;
-      userIdText.textContent = currentUser.userId.substring(0, 10) + '...';
+      userIdText.textContent = currentUser.shortId; // عرض الـ ID القصير
       
       // إخفاء شاشة التسجيل وإظهار الشات
       loginScreen.style.display = 'none';
@@ -828,8 +812,6 @@
       monitorChatSettings();
       // مراقبة المستخدمين المكتومين
       monitorMutedUsers();
-      // مراقبة المستخدمين المتصلين
-      monitorOnlineUsers();
       
     } catch (error) {
       console.error('خطأ في التسجيل:', error);
@@ -921,140 +903,73 @@
     });
   }
 
-  // مراقبة المستخدمين المتصلين
-  function monitorOnlineUsers() {
-    let updateTimeout;
-    
-    onValue(usersRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const users = snapshot.val();
-        const usersArray = [];
-        
-        // تحديث حالة اتصال المستخدم الحالي
-        if (currentUser.userId) {
-          set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
-        }
-        
-        // جمع المستخدمين النشطين
-        for (const userId in users) {
-          const user = users[userId];
-          
-          // اعتبار المستخدم متصلاً إذا كان lastSeen في آخر دقيقتين
-          const lastSeen = user.lastSeen ? new Date(user.lastSeen) : new Date();
-          const now = new Date();
-          const diff = (now - lastSeen) / (1000 * 60);
-          
-          if (diff < 2) {
-            usersArray.push({
-              id: userId,
-              ...user
-            });
-          }
-        }
-        
-        // تحديث القائمة بعد تجميع البيانات
-        updateUsersList(usersArray);
-        
-      } else {
-        // إذا لم يوجد مستخدمون
-        updateUsersList([]);
-      }
-    });
-  }
-
-  // تحديث قائمة المستخدمين
-  function updateUsersList(usersArray) {
-    usersList.innerHTML = '';
-    
-    // إزالة التكرارات بناءً على المعرف
-    const uniqueUsers = [];
-    const seenIds = new Set();
-    
-    for (const user of usersArray) {
-      if (!seenIds.has(user.id)) {
-        seenIds.add(user.id);
-        uniqueUsers.push(user);
-      }
-    }
-    
-    // تحديث العداد
-    onlineCount.textContent = uniqueUsers.length;
-    onlineUsersCount.textContent = `${uniqueUsers.length} متصل`;
-    
-    // تحديث بيانات المستخدمين المتصلين
-    onlineUsers = {};
-    
-    // إضافة المستخدمين للقائمة
-    uniqueUsers.forEach(user => {
-      onlineUsers[user.id] = user;
-      
-      // إضافة المستخدم للقائمة
-      const userItem = document.createElement('div');
-      userItem.className = 'user-item';
-      
-      let badges = '';
-      if (user.isAdmin) {
-        badges += '<span class="user-item-admin">إدمن</span>';
-      }
-      if (mutedUsers[user.id]) {
-        badges += '<span class="user-item-muted">مكتوم</span>';
-      }
-      
-      userItem.innerHTML = `
-        <img src="${user.avatar}" class="user-item-avatar" alt="${user.name}" 
-             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=6d8ed1&color=fff'">
-        <span class="user-item-name">${user.name}</span>
-        ${badges}
-      `;
-      usersList.appendChild(userItem);
-    });
-  }
-
   // إظهار نافذة الأوامر
-  function showCommandModal(command, title) {
+  async function showCommandModal(command, title) {
     currentCommand = command;
     commandModalTitle.textContent = title;
     commandUsersList.innerHTML = '';
     
-    // جمع المستخدمين الفريدين
-    const uniqueUsers = [];
-    const seenIds = new Set();
-    
-    for (const userId in onlineUsers) {
-      const user = onlineUsers[userId];
-      
-      // تخطي المستخدم الحالي
-      if (userId === currentUser.userId) continue;
-      
-      if (!seenIds.has(userId)) {
-        seenIds.add(userId);
-        uniqueUsers.push({ id: userId, ...user });
-      }
-    }
-    
-    // عرض المستخدمين
-    uniqueUsers.forEach(user => {
-      const userItem = document.createElement('div');
-      userItem.className = 'command-user-item';
-      userItem.dataset.userId = user.id;
-      
-      userItem.innerHTML = `
-        <img src="${user.avatar}" class="command-user-avatar" alt="${user.name}"
-             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=6d8ed1&color=fff'">
-        <div class="command-user-info">
-          <div class="command-user-name">${user.name}</div>
-          <div class="command-user-id">${user.id.substring(0, 15)}...</div>
-        </div>
-      `;
-      
-      userItem.addEventListener('click', () => {
-        selectedUser = user.id;
-        executeCommand(command, user.id);
-        hideCommandModal();
+    try {
+      // جلب جميع المستخدمين من قاعدة البيانات
+      const usersSnapshot = await new Promise((resolve) => {
+        onValue(usersRef, (snapshot) => {
+          resolve(snapshot);
+        }, { onlyOnce: true });
       });
       
-      commandUsersList.appendChild(userItem);
-    });
+      if (usersSnapshot.exists()) {
+        const users = usersSnapshot.val();
+        const userArray = [];
+        
+        for (const userId in users) {
+          const user = users[userId];
+          
+          // تخطي المستخدم الحالي
+          if (userId === currentUser.userId) continue;
+          
+          userArray.push({
+            id: userId,
+            shortId: user.shortId || 'N/A',
+            name: user.name,
+            avatar: user.avatar,
+            isAdmin: user.isAdmin || false
+          });
+        }
+        
+        // عرض المستخدمين
+        userArray.forEach(user => {
+          const userItem = document.createElement('div');
+          userItem.className = 'command-user-item';
+          userItem.dataset.userId = user.id;
+          
+          userItem.innerHTML = `
+            <img src="${user.avatar}" class="command-user-avatar" alt="${user.name}"
+                 onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=6d8ed1&color=fff'">
+            <div class="command-user-info">
+              <div class="command-user-name">${user.name} (${user.shortId})</div>
+              <div class="command-user-id">ID: ${user.id}</div>
+            </div>
+          `;
+          
+          userItem.addEventListener('click', () => {
+            selectedUser = user.id;
+            executeCommand(command, user.id, user.name);
+            hideCommandModal();
+          });
+          
+          commandUsersList.appendChild(userItem);
+        });
+        
+        if (userArray.length === 0) {
+          commandUsersList.innerHTML = '<p style="text-align: center; color: #666;">لا يوجد مستخدمون آخرون</p>';
+        }
+      } else {
+        commandUsersList.innerHTML = '<p style="text-align: center; color: #666;">لا يوجد مستخدمون</p>';
+      }
+    } catch (error) {
+      console.error('خطأ في تحميل المستخدمين:', error);
+      commandUsersList.innerHTML = '<p style="text-align: center; color: #ff4757;">خطأ في تحميل المستخدمين</p>';
+    }
     
     commandModal.style.display = 'flex';
   }
@@ -1067,121 +982,136 @@
   }
 
   // تنفيذ الأوامر
-  function executeCommand(command, targetUserId) {
-    const targetUser = onlineUsers[targetUserId];
-    
-    if (!targetUser) {
-      showNotification('المستخدم غير موجود', 'error');
-      return;
+  async function executeCommand(command, targetUserId, targetUserName) {
+    try {
+      // جلب بيانات المستخدم المستهدف
+      const userRef = ref(db, `users/${targetUserId}`);
+      const userSnapshot = await new Promise((resolve) => {
+        onValue(userRef, (snapshot) => {
+          resolve(snapshot);
+        }, { onlyOnce: true });
+      });
+      
+      if (!userSnapshot.exists()) {
+        showNotification('المستخدم غير موجود', 'error');
+        return;
+      }
+      
+      const targetUser = userSnapshot.val();
+      
+      switch(command) {
+        case 'lock':
+          // قفل الدردشة للجميع إلا الإدمن
+          await set(chatSettingsRef, {
+            isLocked: true,
+            lockedBy: currentUser.shortId,
+            lockReason: 'الدردشة مقفولة من قبل الإدمن',
+            lockedUntil: null,
+            lockedAt: serverTimestamp()
+          });
+          
+          await push(messagesRef, {
+            userId: 'system',
+            userName: 'النظام',
+            userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+            text: `🔒 قام ${currentUser.name} (${currentUser.shortId}) بقفل الدردشة. فقط الإدمن يستطيع الكتابة الآن.`,
+            timestamp: serverTimestamp(),
+            isSystem: true
+          });
+          break;
+          
+        case 'unlock':
+          // فتح الدردشة
+          await set(chatSettingsRef, {
+            isLocked: false,
+            lockedBy: null,
+            lockReason: null,
+            lockedUntil: null,
+            lockedAt: null
+          });
+          
+          await push(messagesRef, {
+            userId: 'system',
+            userName: 'النظام',
+            userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+            text: `🔓 قام ${currentUser.name} (${currentUser.shortId}) بفتح الدردشة للجميع.`,
+            timestamp: serverTimestamp(),
+            isSystem: true
+          });
+          break;
+          
+        case 'mute':
+          // كتم المستخدم لمدة ساعة
+          const muteUntil = new Date();
+          muteUntil.setHours(muteUntil.getHours() + 1);
+          
+          await set(ref(db, `mutedUsers/${targetUserId}`), {
+            mutedBy: currentUser.shortId,
+            mutedUntil: muteUntil.toISOString(),
+            mutedAt: serverTimestamp(),
+            userName: targetUser.name,
+            shortId: targetUser.shortId
+          });
+          
+          await push(messagesRef, {
+            userId: 'system',
+            userName: 'النظام',
+            userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+            text: `🤫 قام ${currentUser.name} (${currentUser.shortId}) بكتم ${targetUser.name} (${targetUser.shortId}) لمدة ساعة.`,
+            timestamp: serverTimestamp(),
+            isSystem: true
+          });
+          break;
+          
+        case 'unmute':
+          // إزالة كتم المستخدم
+          await remove(ref(db, `mutedUsers/${targetUserId}`));
+          
+          await push(messagesRef, {
+            userId: 'system',
+            userName: 'النظام',
+            userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+            text: `🎤 قام ${currentUser.name} (${currentUser.shortId}) بإزالة كتم ${targetUser.name} (${targetUser.shortId}).`,
+            timestamp: serverTimestamp(),
+            isSystem: true
+          });
+          break;
+          
+        case 'role':
+          // ترقية المستخدم إلى إدمن
+          await set(ref(db, `users/${targetUserId}/isAdmin`), true);
+          
+          await push(messagesRef, {
+            userId: 'system',
+            userName: 'النظام',
+            userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+            text: `👑 قام ${currentUser.name} (${currentUser.shortId}) بترقية ${targetUser.name} (${targetUser.shortId}) إلى إدمن.`,
+            timestamp: serverTimestamp(),
+            isSystem: true
+          });
+          break;
+          
+        case 'unrole':
+          // إزالة صلاحيات الإدمن
+          await set(ref(db, `users/${targetUserId}/isAdmin`), false);
+          
+          await push(messagesRef, {
+            userId: 'system',
+            userName: 'النظام',
+            userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+            text: `👤 قام ${currentUser.name} (${currentUser.shortId}) بإزالة صلاحيات الإدمن من ${targetUser.name} (${targetUser.shortId}).`,
+            timestamp: serverTimestamp(),
+            isSystem: true
+          });
+          break;
+      }
+      
+      showNotification(`تم تنفيذ الأمر ${command} بنجاح`, 'success');
+      
+    } catch (error) {
+      console.error('خطأ في تنفيذ الأمر:', error);
+      showNotification('حدث خطأ في تنفيذ الأمر', 'error');
     }
-    
-    switch(command) {
-      case 'lock':
-        // قفل الدردشة للجميع إلا الإدمن
-        set(chatSettingsRef, {
-          isLocked: true,
-          lockedBy: currentUser.userId,
-          lockReason: 'الدردشة مقفولة من قبل الإدمن',
-          lockedUntil: null,
-          lockedAt: serverTimestamp()
-        });
-        
-        push(messagesRef, {
-          userId: 'system',
-          userName: 'النظام',
-          userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-          text: `🔒 قام ${currentUser.name} بقفل الدردشة. فقط الإدمن يستطيع الكتابة الآن.`,
-          timestamp: serverTimestamp(),
-          isSystem: true
-        });
-        break;
-        
-      case 'unlock':
-        // فتح الدردشة
-        set(chatSettingsRef, {
-          isLocked: false,
-          lockedBy: null,
-          lockReason: null,
-          lockedUntil: null,
-          lockedAt: null
-        });
-        
-        push(messagesRef, {
-          userId: 'system',
-          userName: 'النظام',
-          userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-          text: `🔓 قام ${currentUser.name} بفتح الدردشة للجميع.`,
-          timestamp: serverTimestamp(),
-          isSystem: true
-        });
-        break;
-        
-      case 'mute':
-        // كتم المستخدم لمدة ساعة
-        const muteUntil = new Date();
-        muteUntil.setHours(muteUntil.getHours() + 1);
-        
-        set(ref(db, `mutedUsers/${targetUserId}`), {
-          mutedBy: currentUser.userId,
-          mutedUntil: muteUntil.toISOString(),
-          mutedAt: serverTimestamp(),
-          userName: targetUser.name
-        });
-        
-        push(messagesRef, {
-          userId: 'system',
-          userName: 'النظام',
-          userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-          text: `🤫 قام ${currentUser.name} بكتم ${targetUser.name} لمدة ساعة.`,
-          timestamp: serverTimestamp(),
-          isSystem: true
-        });
-        break;
-        
-      case 'unmute':
-        // إزالة كتم المستخدم
-        remove(ref(db, `mutedUsers/${targetUserId}`));
-        
-        push(messagesRef, {
-          userId: 'system',
-          userName: 'النظام',
-          userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-          text: `🎤 قام ${currentUser.name} بإزالة كتم ${targetUser.name}.`,
-          timestamp: serverTimestamp(),
-          isSystem: true
-        });
-        break;
-        
-      case 'role':
-        // ترقية المستخدم إلى إدمن
-        set(ref(db, `users/${targetUserId}/isAdmin`), true);
-        
-        push(messagesRef, {
-          userId: 'system',
-          userName: 'النظام',
-          userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-          text: `👑 قام ${currentUser.name} بترقية ${targetUser.name} إلى إدمن.`,
-          timestamp: serverTimestamp(),
-          isSystem: true
-        });
-        break;
-        
-      case 'unrole':
-        // إزالة صلاحيات الإدمن
-        set(ref(db, `users/${targetUserId}/isAdmin`), false);
-        
-        push(messagesRef, {
-          userId: 'system',
-          userName: 'النظام',
-          userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-          text: `👤 قام ${currentUser.name} بإزالة صلاحيات الإدمن من ${targetUser.name}.`,
-          timestamp: serverTimestamp(),
-          isSystem: true
-        });
-        break;
-    }
-    
-    showNotification(`تم تنفيذ الأمر ${command} بنجاح`, 'success');
   }
 
   // إلغاء نافذة الأوامر
@@ -1223,7 +1153,7 @@
       showCommandModal(command, title);
     } else {
       // الأوامر التي لا تحتاج لاختيار مستخدم
-      executeCommand(command, null);
+      executeCommand(command, null, null);
     }
     
     return true;
@@ -1279,6 +1209,7 @@
       // إضافة الرسالة إلى Firebase
       await push(messagesRef, {
         userId: currentUser.userId,
+        shortId: currentUser.shortId,
         userName: currentUser.name,
         userAvatar: currentUser.avatar,
         text: text,
@@ -1360,8 +1291,8 @@
         </div>
       `;
     } else {
-      // إضافة "(إدمن)" فقط إذا كان إدمن
-      const displayName = message.userName + (message.isAdmin ? ' (إدمن)' : '');
+      // استخدام الـ ID القصير في العرض
+      const displayName = `${message.userName} (${message.shortId || 'ID'})${message.isAdmin ? ' 👑' : ''}`;
       
       messageDiv.innerHTML = `
         <img src="${message.userAvatar}" class="message-avatar" alt="${message.userName}"
@@ -1423,22 +1354,6 @@
   window.addEventListener('offline', () => {
     onlineStatus.textContent = '✗ غير متصل';
     onlineStatus.style.color = '#ff4757';
-  });
-
-  // تحديث حالة اتصال المستخدم بانتظام
-  const connectionInterval = setInterval(() => {
-    if (currentUser.userId && navigator.onLine) {
-      set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
-    }
-  }, 30000);
-
-  // تنظيف عند الخروج
-  window.addEventListener('beforeunload', () => {
-    if (currentUser.userId) {
-      // تحديث lastSeen فقط
-      set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
-      clearInterval(connectionInterval);
-    }
   });
 
 </script>
