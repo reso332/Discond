@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Discond</title>
+<title>دردشة لطيفة</title>
 <style>
   :root {
     --primary: #6d8ed1;
@@ -147,16 +147,18 @@
     margin-right: 10px;
   }
   
-  /* قائمة المستخدمين المتصلين */
-  .online-users {
-    background: var(--secondary);
+  /* أدوات الإدمن */
+  .admin-tools {
+    background: #fff5f5;
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 20px;
+    border: 1px solid #ffcccc;
+    display: none;
   }
   
-  .online-users h3 {
-    color: var(--primary);
+  .admin-tools h3 {
+    color: #ff4757;
     margin-bottom: 15px;
     font-size: 16px;
     display: flex;
@@ -164,58 +166,54 @@
     gap: 10px;
   }
   
-  .online-users h3:before {
-    content: "👥";
+  .admin-tools h3:before {
+    content: "🛡️";
   }
   
-  .users-list {
-    max-height: 200px;
-    overflow-y: auto;
+  .admin-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
   }
   
-  .user-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-  }
-  
-  .user-item:last-child {
-    border-bottom: none;
-  }
-  
-  .user-item-avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-  
-  .user-item-name {
-    flex: 1;
-    font-size: 14px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .user-item-admin {
+  .admin-btn {
     background: #ff4757;
     color: white;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 11px;
-    flex-shrink: 0;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
   }
   
-  .user-item-muted {
+  .admin-btn:hover {
+    background: #ff6b81;
+  }
+  
+  .admin-btn.secondary {
+    background: var(--primary);
+  }
+  
+  .admin-btn.secondary:hover {
+    background: var(--primary-light);
+  }
+  
+  .admin-btn.danger {
+    background: #ff4757;
+  }
+  
+  .admin-btn.success {
+    background: #4CAF50;
+  }
+  
+  .admin-btn.warning {
     background: #ffa502;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 11px;
-    flex-shrink: 0;
   }
   
   /* نافذة الأوامر */
@@ -571,7 +569,7 @@
   }
   
   .notification.error {
-    border-right-color = #ff4757;
+    border-right-color: #ff4757;
   }
   
   .notification.success {
@@ -675,6 +673,48 @@
           ID: <span id="userIdText">---</span>
         </div>
       </div>
+      
+      <!-- أدوات الإدمن -->
+      <div id="adminTools" class="admin-tools">
+        <h3>أدوات الإدمن</h3>
+        
+        <div class="admin-buttons">
+          <button id="lockBtn" class="admin-btn danger">
+            <span>🔒</span> قفل
+          </button>
+          <button id="unlockBtn" class="admin-btn success">
+            <span>🔓</span> فتح
+          </button>
+        </div>
+        
+        <div class="admin-buttons">
+          <button id="muteBtn" class="admin-btn warning">
+            <span>🤫</span> كتم
+          </button>
+          <button id="unmuteBtn" class="admin-btn warning">
+            <span>🎤</span> إزالة كتم
+          </button>
+        </div>
+        
+        <div class="admin-buttons">
+          <button id="roleBtn" class="admin-btn secondary">
+            <span>👑</span> ترقية
+          </button>
+          <button id="unroleBtn" class="admin-btn secondary">
+            <span>👤</span> إزالة ترقية
+          </button>
+        </div>
+        
+        <div style="margin-top: 15px;">
+          <button id="clearChatBtn" class="admin-btn danger" style="width: 100%;">
+            <span>🗑️</span> مسح المحادثة
+          </button>
+        </div>
+        
+        <div style="font-size: 11px; color: #666; margin-top: 10px; text-align: center;">
+          اضغط على الزر لعرض قائمة المستخدمين
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -723,6 +763,16 @@
   const lockReason = document.getElementById('lockReason');
   const lockTime = document.getElementById('lockTime');
   
+  // أدوات الإدمن
+  const adminTools = document.getElementById('adminTools');
+  const lockBtn = document.getElementById('lockBtn');
+  const unlockBtn = document.getElementById('unlockBtn');
+  const muteBtn = document.getElementById('muteBtn');
+  const unmuteBtn = document.getElementById('unmuteBtn');
+  const roleBtn = document.getElementById('roleBtn');
+  const unroleBtn = document.getElementById('unroleBtn');
+  const clearChatBtn = document.getElementById('clearChatBtn');
+  
   // نافذة الأوامر
   const commandModal = document.getElementById('commandModal');
   const commandModalTitle = document.getElementById('commandModalTitle');
@@ -752,6 +802,7 @@
   let chatLockedUntil = null;
   let mutedUsers = {};
   let messageCountValue = 0;
+  let currentCommand = '';
 
   // عرض إشعار
   function showNotification(message, type = 'info') {
@@ -778,7 +829,7 @@
     
     // إنشاء معرف فريد قصير للمستخدم
     currentUser.userId = 'user_' + Date.now();
-    currentUser.shortId = generateShortId(); // ID قصير 8 أحرف
+    currentUser.shortId = generateShortId();
     currentUser.name = name;
     currentUser.avatar = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6d8ed1&color=fff`;
     currentUser.isAdmin = false;
@@ -787,7 +838,7 @@
       // حفظ بيانات المستخدم في Firebase
       await set(ref(db, `users/${currentUser.userId}`), {
         name: currentUser.name,
-        shortId: currentUser.shortId, // حفظ الـ ID القصير
+        shortId: currentUser.shortId,
         avatar: currentUser.avatar,
         isAdmin: false,
         lastSeen: serverTimestamp(),
@@ -797,7 +848,7 @@
       // تحديث واجهة المستخدم
       profileName.textContent = currentUser.name;
       profileAvatar.src = currentUser.avatar;
-      userIdText.textContent = currentUser.shortId; // عرض الـ ID القصير
+      userIdText.textContent = currentUser.shortId;
       
       // إخفاء شاشة التسجيل وإظهار الشات
       loginScreen.style.display = 'none';
@@ -830,9 +881,11 @@
         
         if (isAdmin) {
           adminBadge.style.display = 'inline-block';
+          adminTools.style.display = 'block';
           profileName.style.color = '#ff4757';
         } else {
           adminBadge.style.display = 'none';
+          adminTools.style.display = 'none';
           profileName.style.color = '';
         }
       }
@@ -952,8 +1005,7 @@
           `;
           
           userItem.addEventListener('click', () => {
-            selectedUser = user.id;
-            executeCommand(command, user.id, user.name);
+            executeCommand(command, user.id, user.name, user.shortId);
             hideCommandModal();
           });
           
@@ -978,27 +1030,75 @@
   function hideCommandModal() {
     commandModal.style.display = 'none';
     currentCommand = '';
-    selectedUser = null;
   }
 
-  // تنفيذ الأوامر
-  async function executeCommand(command, targetUserId, targetUserName) {
-    try {
-      // جلب بيانات المستخدم المستهدف
-      const userRef = ref(db, `users/${targetUserId}`);
-      const userSnapshot = await new Promise((resolve) => {
-        onValue(userRef, (snapshot) => {
-          resolve(snapshot);
-        }, { onlyOnce: true });
-      });
-      
-      if (!userSnapshot.exists()) {
-        showNotification('المستخدم غير موجود', 'error');
-        return;
+  // زر قفل الدردشة
+  lockBtn.addEventListener('click', () => {
+    if (!currentUser.isAdmin) return;
+    executeCommand('lock', null, null, null);
+  });
+
+  // زر فتح الدردشة
+  unlockBtn.addEventListener('click', () => {
+    if (!currentUser.isAdmin) return;
+    executeCommand('unlock', null, null, null);
+  });
+
+  // زر كتم مستخدم
+  muteBtn.addEventListener('click', () => {
+    if (!currentUser.isAdmin) return;
+    showCommandModal('mute', 'اختر المستخدم للكتم');
+  });
+
+  // زر إزالة كتم
+  unmuteBtn.addEventListener('click', () => {
+    if (!currentUser.isAdmin) return;
+    showCommandModal('unmute', 'اختر المستخدم لإزالة الكتم');
+  });
+
+  // زر ترقية لإدمن
+  roleBtn.addEventListener('click', () => {
+    if (!currentUser.isAdmin) return;
+    showCommandModal('role', 'اختر المستخدم لترقيته إلى إدمن');
+  });
+
+  // زر إزالة ترقية إدمن
+  unroleBtn.addEventListener('click', () => {
+    if (!currentUser.isAdmin) return;
+    showCommandModal('unrole', 'اختر المستخدم لإزالة صلاحيات الإدمن');
+  });
+
+  // زر مسح المحادثة
+  clearChatBtn.addEventListener('click', async () => {
+    if (!currentUser.isAdmin) return;
+    
+    if (confirm('هل أنت متأكد من مسح جميع الرسائل؟ هذا الإجراء لا يمكن التراجع عنه.')) {
+      try {
+        await remove(messagesRef);
+        showNotification('تم مسح جميع الرسائل بنجاح', 'success');
+        
+        // إرسال رسالة نظام
+        await push(messagesRef, {
+          userId: 'system',
+          userName: 'النظام',
+          userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+          text: `🗑️ قام ${currentUser.name} (${currentUser.shortId}) بمسح جميع الرسائل.`,
+          timestamp: serverTimestamp(),
+          isSystem: true
+        });
+      } catch (error) {
+        console.error('خطأ في مسح الرسائل:', error);
+        showNotification('حدث خطأ في مسح الرسائل', 'error');
       }
-      
-      const targetUser = userSnapshot.val();
-      
+    }
+  });
+
+  // إلغاء نافذة الأوامر
+  commandCancelBtn.addEventListener('click', hideCommandModal);
+
+  // تنفيذ الأوامر
+  async function executeCommand(command, targetUserId, targetUserName, targetShortId) {
+    try {
       switch(command) {
         case 'lock':
           // قفل الدردشة للجميع إلا الإدمن
@@ -1018,6 +1118,8 @@
             timestamp: serverTimestamp(),
             isSystem: true
           });
+          
+          showNotification('تم قفل الدردشة بنجاح', 'success');
           break;
           
         case 'unlock':
@@ -1038,9 +1140,16 @@
             timestamp: serverTimestamp(),
             isSystem: true
           });
+          
+          showNotification('تم فتح الدردشة بنجاح', 'success');
           break;
           
         case 'mute':
+          if (!targetUserId) {
+            showCommandModal('mute', 'اختر المستخدم للكتم');
+            return;
+          }
+          
           // كتم المستخدم لمدة ساعة
           const muteUntil = new Date();
           muteUntil.setHours(muteUntil.getHours() + 1);
@@ -1049,21 +1158,28 @@
             mutedBy: currentUser.shortId,
             mutedUntil: muteUntil.toISOString(),
             mutedAt: serverTimestamp(),
-            userName: targetUser.name,
-            shortId: targetUser.shortId
+            userName: targetUserName,
+            shortId: targetShortId
           });
           
           await push(messagesRef, {
             userId: 'system',
             userName: 'النظام',
             userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-            text: `🤫 قام ${currentUser.name} (${currentUser.shortId}) بكتم ${targetUser.name} (${targetUser.shortId}) لمدة ساعة.`,
+            text: `🤫 قام ${currentUser.name} (${currentUser.shortId}) بكتم ${targetUserName} (${targetShortId}) لمدة ساعة.`,
             timestamp: serverTimestamp(),
             isSystem: true
           });
+          
+          showNotification(`تم كتم ${targetUserName} بنجاح`, 'success');
           break;
           
         case 'unmute':
+          if (!targetUserId) {
+            showCommandModal('unmute', 'اختر المستخدم لإزالة الكتم');
+            return;
+          }
+          
           // إزالة كتم المستخدم
           await remove(ref(db, `mutedUsers/${targetUserId}`));
           
@@ -1071,13 +1187,20 @@
             userId: 'system',
             userName: 'النظام',
             userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-            text: `🎤 قام ${currentUser.name} (${currentUser.shortId}) بإزالة كتم ${targetUser.name} (${targetUser.shortId}).`,
+            text: `🎤 قام ${currentUser.name} (${currentUser.shortId}) بإزالة كتم ${targetUserName} (${targetShortId}).`,
             timestamp: serverTimestamp(),
             isSystem: true
           });
+          
+          showNotification(`تم إزالة كتم ${targetUserName} بنجاح`, 'success');
           break;
           
         case 'role':
+          if (!targetUserId) {
+            showCommandModal('role', 'اختر المستخدم لترقيته إلى إدمن');
+            return;
+          }
+          
           // ترقية المستخدم إلى إدمن
           await set(ref(db, `users/${targetUserId}/isAdmin`), true);
           
@@ -1085,13 +1208,20 @@
             userId: 'system',
             userName: 'النظام',
             userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-            text: `👑 قام ${currentUser.name} (${currentUser.shortId}) بترقية ${targetUser.name} (${targetUser.shortId}) إلى إدمن.`,
+            text: `👑 قام ${currentUser.name} (${currentUser.shortId}) بترقية ${targetUserName} (${targetShortId}) إلى إدمن.`,
             timestamp: serverTimestamp(),
             isSystem: true
           });
+          
+          showNotification(`تم ترقية ${targetUserName} إلى إدمن بنجاح`, 'success');
           break;
           
         case 'unrole':
+          if (!targetUserId) {
+            showCommandModal('unrole', 'اختر المستخدم لإزالة صلاحيات الإدمن');
+            return;
+          }
+          
           // إزالة صلاحيات الإدمن
           await set(ref(db, `users/${targetUserId}/isAdmin`), false);
           
@@ -1099,64 +1229,19 @@
             userId: 'system',
             userName: 'النظام',
             userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-            text: `👤 قام ${currentUser.name} (${currentUser.shortId}) بإزالة صلاحيات الإدمن من ${targetUser.name} (${targetUser.shortId}).`,
+            text: `👤 قام ${currentUser.name} (${currentUser.shortId}) بإزالة صلاحيات الإدمن من ${targetUserName} (${targetShortId}).`,
             timestamp: serverTimestamp(),
             isSystem: true
           });
+          
+          showNotification(`تم إزالة صلاحيات الإدمن من ${targetUserName} بنجاح`, 'success');
           break;
       }
-      
-      showNotification(`تم تنفيذ الأمر ${command} بنجاح`, 'success');
       
     } catch (error) {
       console.error('خطأ في تنفيذ الأمر:', error);
       showNotification('حدث خطأ في تنفيذ الأمر', 'error');
     }
-  }
-
-  // إلغاء نافذة الأوامر
-  commandCancelBtn.addEventListener('click', hideCommandModal);
-
-  // معالجة الأوامر في الرسائل
-  function handleCommand(message) {
-    const text = message.text.trim();
-    
-    if (!text.startsWith('/')) return false;
-    
-    const parts = text.substring(1).split(' ');
-    const command = parts[0].toLowerCase();
-    
-    // التحقق من أن المرسل إدمن
-    if (!message.isAdmin) {
-      return false;
-    }
-    
-    // قائمة الأوامر المسموحة
-    const allowedCommands = ['lock', 'unlock', 'mute', 'unmute', 'role', 'unrole'];
-    
-    if (!allowedCommands.includes(command)) {
-      return false;
-    }
-    
-    // الأوامر التي تحتاج لاختيار مستخدم
-    const userSelectCommands = ['mute', 'unmute', 'role', 'unrole'];
-    
-    if (userSelectCommands.includes(command)) {
-      // عرض نافذة اختيار المستخدم
-      let title = '';
-      switch(command) {
-        case 'mute': title = 'اختر المستخدم للكتم'; break;
-        case 'unmute': title = 'اختر المستخدم لإزالة الكتم'; break;
-        case 'role': title = 'اختر المستخدم لترقيته إلى إدمن'; break;
-        case 'unrole': title = 'اختر المستخدم لإزالة صلاحيات الإدمن'; break;
-      }
-      showCommandModal(command, title);
-    } else {
-      // الأوامر التي لا تحتاج لاختيار مستخدم
-      executeCommand(command, null, null);
-    }
-    
-    return true;
   }
 
   // إرسال رسالة
@@ -1189,18 +1274,6 @@
       
       if (lockUntil > now && !currentUser.isAdmin) {
         showNotification('الدردشة مغلقة مؤقتاً. فقط الإدمن يستطيع الكتابة.', 'error');
-        return;
-      }
-    }
-    
-    // التحقق إذا كانت الرسالة أمر
-    if (text.startsWith('/') && currentUser.isAdmin) {
-      if (handleCommand({
-        text: text,
-        isAdmin: currentUser.isAdmin,
-        userId: currentUser.userId
-      })) {
-        messageInput.value = '';
         return;
       }
     }
