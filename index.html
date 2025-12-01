@@ -147,67 +147,6 @@
     margin-right: 10px;
   }
   
-  /* أدوات الإدمن */
-  .admin-tools {
-    background: #fff5f5;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ffcccc;
-    display: none;
-  }
-  
-  .admin-tools h3 {
-    color: #ff4757;
-    margin-bottom: 15px;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .admin-tools h3:before {
-    content: "🛡️";
-  }
-  
-  .admin-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-  
-  .admin-btn {
-    background: #ff4757;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.3s;
-  }
-  
-  .admin-btn:hover {
-    background: #ff6b81;
-  }
-  
-  .admin-btn.secondary {
-    background: var(--primary);
-  }
-  
-  .admin-btn.secondary:hover {
-    background: var(--primary-light);
-  }
-  
-  .admin-input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    margin-bottom: 10px;
-  }
-  
   /* قائمة المستخدمين المتصلين */
   .online-users {
     background: var(--secondary);
@@ -266,6 +205,14 @@
     font-size: 11px;
   }
   
+  .user-item-muted {
+    background: #ffa502;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+  }
+  
   .online-count {
     background: var(--primary);
     color: white;
@@ -275,8 +222,8 @@
     margin-right: 10px;
   }
   
-  /* نافذة التحكم */
-  .modal {
+  /* نافذة الأوامر */
+  .command-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -289,47 +236,82 @@
     z-index: 2000;
   }
   
-  .modal-content {
+  .command-modal-content {
     background: var(--white);
-    padding: 30px;
+    padding: 20px;
     border-radius: 12px;
     width: 90%;
-    max-width: 400px;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
   }
   
-  .modal h3 {
+  .command-modal h3 {
     color: var(--primary);
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     text-align: center;
   }
   
-  .modal-buttons {
+  .command-users-list {
     display: flex;
+    flex-direction: column;
     gap: 10px;
+    margin-bottom: 20px;
   }
   
-  .modal-btn {
+  .command-user-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .command-user-item:hover {
+    background: #e8f0fe;
+  }
+  
+  .command-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .command-user-info {
     flex: 1;
-    padding: 12px;
+  }
+  
+  .command-user-name {
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  .command-user-id {
+    font-size: 12px;
+    color: var(--text-light);
+  }
+  
+  .command-modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+  
+  .command-btn {
+    padding: 10px 20px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
   }
   
-  .submit-btn {
-    background: var(--primary);
-    color: white;
-  }
-  
-  .cancel-btn {
+  .command-cancel {
     background: var(--border);
     color: var(--text);
-  }
-  
-  .danger-btn {
-    background: #ff4757;
-    color: white;
   }
   
   /* منطقة الشات */
@@ -385,6 +367,17 @@
   
   .message.admin {
     border-right: 3px solid #ff4757;
+  }
+  
+  .message.system {
+    border-right: 3px solid #4CAF50;
+    max-width: 100%;
+    justify-content: center;
+  }
+  
+  .message.system .message-content {
+    background: #e8f5e9;
+    color: #2e7d32;
   }
   
   .message.muted {
@@ -603,16 +596,15 @@
   </div>
 </div>
 
-<!-- نافذة تحكم الإدمن -->
-<div id="adminModal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <h3 id="modalTitle">تحكم الإدمن</h3>
-    <div id="modalBody">
-      <!-- محتوى النافذة يتغير حسب الإجراء -->
+<!-- نافذة الأوامر -->
+<div id="commandModal" class="command-modal" style="display: none;">
+  <div class="command-modal-content">
+    <h3 id="commandModalTitle">اختر المستخدم</h3>
+    <div class="command-users-list" id="commandUsersList">
+      <!-- قائمة المستخدمين تظهر هنا -->
     </div>
-    <div class="modal-buttons">
-      <button id="modalConfirmBtn" class="modal-btn submit-btn">تأكيد</button>
-      <button id="modalCancelBtn" class="modal-btn cancel-btn">إلغاء</button>
+    <div class="command-modal-buttons">
+      <button id="commandCancelBtn" class="command-btn command-cancel">إلغاء</button>
     </div>
   </div>
 </div>
@@ -672,28 +664,6 @@
           <!-- المستخدمون يظهرون هنا -->
         </div>
       </div>
-      
-      <!-- أدوات الإدمن (تظهر فقط للإدمن) -->
-      <div id="adminTools" class="admin-tools">
-        <h3>أدوات الإدمن</h3>
-        
-        <div class="admin-buttons">
-          <button id="clearChatBtn" class="admin-btn">مسح الدردشة</button>
-          <button id="lockChatBtn" class="admin-btn">قفل الدردشة</button>
-        </div>
-        
-        <div class="admin-buttons">
-          <button id="muteUserBtn" class="admin-btn secondary">كتم مستخدم</button>
-          <button id="lockMessageBtn" class="admin-btn secondary">رسالة مقفلة</button>
-        </div>
-        
-        <input type="text" id="targetUserId" class="admin-input" placeholder="معرف المستخدم المستهدف">
-        <input type="text" id="lockDuration" class="admin-input" placeholder="مدة القفل بالدقائق">
-        
-        <div style="font-size: 12px; color: #666; margin-top: 10px; text-align: center;">
-          لتكون إدمن، غير isAdmin إلى true في قاعدة البيانات
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -732,7 +702,6 @@
   const profileName = document.getElementById('profileName');
   const profileAvatar = document.getElementById('profileAvatar');
   const adminBadge = document.getElementById('adminBadge');
-  const adminTools = document.getElementById('adminTools');
   const userIdText = document.getElementById('userIdText');
   const messagesContainer = document.getElementById('messagesContainer');
   const messageInput = document.getElementById('message-input');
@@ -745,21 +714,12 @@
   const chatLocked = document.getElementById('chatLocked');
   const lockReason = document.getElementById('lockReason');
   const lockTime = document.getElementById('lockTime');
-
-  // أدوات الإدمن
-  const clearChatBtn = document.getElementById('clearChatBtn');
-  const lockChatBtn = document.getElementById('lockChatBtn');
-  const muteUserBtn = document.getElementById('muteUserBtn');
-  const lockMessageBtn = document.getElementById('lockMessageBtn');
-  const targetUserId = document.getElementById('targetUserId');
-  const lockDuration = document.getElementById('lockDuration');
-
-  // النافذة المنبثقة
-  const adminModal = document.getElementById('adminModal');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalBody = document.getElementById('modalBody');
-  const modalConfirmBtn = document.getElementById('modalConfirmBtn');
-  const modalCancelBtn = document.getElementById('modalCancelBtn');
+  
+  // نافذة الأوامر
+  const commandModal = document.getElementById('commandModal');
+  const commandModalTitle = document.getElementById('commandModalTitle');
+  const commandUsersList = document.getElementById('commandUsersList');
+  const commandCancelBtn = document.getElementById('commandCancelBtn');
 
   // بيانات المستخدم الحالي
   let currentUser = {
@@ -770,10 +730,11 @@
   };
 
   // متغيرات التحكم
-  let currentAction = '';
   let chatLockedUntil = null;
   let mutedUsers = {};
   let onlineUsers = {};
+  let currentCommand = '';
+  let selectedUser = null;
 
   // عرض إشعار
   function showNotification(message, type = 'info') {
@@ -802,13 +763,13 @@
     currentUser.userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     currentUser.name = name;
     currentUser.avatar = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6d8ed1&color=fff`;
-    currentUser.isAdmin = false; // دائماً false عند التسجيل
+    currentUser.isAdmin = false;
     
     // حفظ بيانات المستخدم في Firebase
     set(ref(db, `users/${currentUser.userId}`), {
       name: currentUser.name,
       avatar: currentUser.avatar,
-      isAdmin: false, // يبقى false إلا إذا غيرته في الداتابيز
+      isAdmin: false,
       lastSeen: serverTimestamp(),
       joinedAt: serverTimestamp(),
       isOnline: true
@@ -847,12 +808,9 @@
         
         if (isAdmin) {
           adminBadge.style.display = 'inline-block';
-          adminTools.style.display = 'block';
           profileName.style.color = '#ff4757';
-          showNotification('أنت الآن إدمن في الدردشة', 'success');
         } else {
           adminBadge.style.display = 'none';
-          adminTools.style.display = 'none';
           profileName.style.color = '';
         }
       }
@@ -924,7 +882,7 @@
         
         let count = 0;
         
-        // تحديث حالة اتصال المستخدم الحالي كل 30 ثانية
+        // تحديث حالة اتصال المستخدم الحالي
         set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
         
         for (const userId in users) {
@@ -934,18 +892,27 @@
           // اعتبار المستخدم متصلاً إذا كان lastSeen في آخر 2 دقيقة
           const lastSeen = user.lastSeen ? new Date(user.lastSeen) : new Date();
           const now = new Date();
-          const diff = (now - lastSeen) / (1000 * 60); // الفارق بالدقائق
+          const diff = (now - lastSeen) / (1000 * 60);
           
-          if (diff < 2) { // متصل إذا كان آخر ظهور منذ أقل من دقيقتين
+          if (diff < 2) {
             count++;
             
             // إضافة المستخدم للقائمة
             const userItem = document.createElement('div');
             userItem.className = 'user-item';
+            
+            let badges = '';
+            if (user.isAdmin) {
+              badges += '<span class="user-item-admin">إدمن</span>';
+            }
+            if (mutedUsers[userId]) {
+              badges += '<span class="user-item-muted">مكتوم</span>';
+            }
+            
             userItem.innerHTML = `
               <img src="${user.avatar}" class="user-item-avatar" alt="${user.name}">
               <span class="user-item-name">${user.name}</span>
-              ${user.isAdmin ? '<span class="user-item-admin">إدمن</span>' : ''}
+              ${badges}
             `;
             usersList.appendChild(userItem);
           }
@@ -963,205 +930,213 @@
     });
   }
 
-  // إظهار نافذة الإدمن
-  function showAdminModal(title, body, confirmText = 'تأكيد', cancelText = 'إلغاء', action = '') {
-    modalTitle.textContent = title;
-    modalBody.innerHTML = body;
-    modalConfirmBtn.textContent = confirmText;
-    modalCancelBtn.textContent = cancelText;
-    currentAction = action;
-    adminModal.style.display = 'flex';
+  // إظهار نافذة الأوامر
+  function showCommandModal(command, title) {
+    currentCommand = command;
+    commandModalTitle.textContent = title;
+    commandUsersList.innerHTML = '';
+    
+    // إضافة المستخدمين للقائمة
+    for (const userId in onlineUsers) {
+      const user = onlineUsers[userId];
+      
+      // تخطي المستخدم الحالي
+      if (userId === currentUser.userId) continue;
+      
+      const userItem = document.createElement('div');
+      userItem.className = 'command-user-item';
+      userItem.dataset.userId = userId;
+      
+      userItem.innerHTML = `
+        <img src="${user.avatar}" class="command-user-avatar" alt="${user.name}">
+        <div class="command-user-info">
+          <div class="command-user-name">${user.name}</div>
+          <div class="command-user-id">${userId.substring(0, 15)}...</div>
+        </div>
+      `;
+      
+      userItem.addEventListener('click', () => {
+        selectedUser = userId;
+        executeCommand(command, userId);
+        hideCommandModal();
+      });
+      
+      commandUsersList.appendChild(userItem);
+    }
+    
+    commandModal.style.display = 'flex';
   }
 
-  // إخفاء نافذة الإدمن
-  function hideAdminModal() {
-    adminModal.style.display = 'none';
-    currentAction = '';
-    targetUserId.value = '';
-    lockDuration.value = '';
+  // إخفاء نافذة الأوامر
+  function hideCommandModal() {
+    commandModal.style.display = 'none';
+    currentCommand = '';
+    selectedUser = null;
   }
 
-  // زر مسح الدردشة
-  clearChatBtn.addEventListener('click', () => {
-    if (!currentUser.isAdmin) return;
+  // تنفيذ الأوامر
+  function executeCommand(command, targetUserId) {
+    const targetUser = onlineUsers[targetUserId];
     
-    showAdminModal(
-      'مسح جميع الرسائل',
-      '<p>هل أنت متأكد من مسح جميع الرسائل؟</p><p style="color: #ff4757; font-size: 14px;">هذا الإجراء لا يمكن التراجع عنه</p>',
-      'مسح الكل',
-      'إلغاء',
-      'clear_chat'
-    );
-  });
-
-  // زر قفل الدردشة
-  lockChatBtn.addEventListener('click', () => {
-    if (!currentUser.isAdmin) return;
+    if (!targetUser) {
+      showNotification('المستخدم غير موجود', 'error');
+      return;
+    }
     
-    showAdminModal(
-      'قفل الدردشة',
-      `
-      <div style="margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 8px;">المدة (بالدقائق):</label>
-        <input type="number" id="modalLockDuration" class="admin-input" value="30" min="1" max="1440">
-      </div>
-      <div>
-        <label style="display: block; margin-bottom: 8px;">السبب (اختياري):</label>
-        <textarea id="modalLockReason" class="admin-input" placeholder="سبب قفل الدردشة..." rows="3"></textarea>
-      </div>
-      `,
-      'قفل الدردشة',
-      'إلغاء',
-      'lock_chat'
-    );
-  });
-
-  // زر كتم مستخدم
-  muteUserBtn.addEventListener('click', () => {
-    if (!currentUser.isAdmin) return;
-    
-    showAdminModal(
-      'كتم مستخدم',
-      `
-      <div style="margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 8px;">معرف المستخدم:</label>
-        <input type="text" id="modalTargetUser" class="admin-input" placeholder="user_123456789...">
-      </div>
-      <div>
-        <label style="display: block; margin-bottom: 8px;">المدة (بالدقائق):</label>
-        <input type="number" id="modalMuteDuration" class="admin-input" value="60" min="1" max="10080">
-      </div>
-      `,
-      'كتم المستخدم',
-      'إلغاء',
-      'mute_user'
-    );
-  });
-
-  // زر رسالة مقفلة
-  lockMessageBtn.addEventListener('click', () => {
-    if (!currentUser.isAdmin) return;
-    
-    showAdminModal(
-      'إرسال رسالة مقفلة',
-      `
-      <div style="margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 8px;">نص الرسالة:</label>
-        <textarea id="modalLockedMessage" class="admin-input" placeholder="اكتب الرسالة المقفلة هنا..." rows="4"></textarea>
-      </div>
-      <div>
-        <label style="display: block; margin-bottom: 8px;">المدة (بالدقائق):</label>
-        <input type="number" id="modalMessageLockDuration" class="admin-input" value="5" min="1" max="1440">
-      </div>
-      `,
-      'إرسال',
-      'إلغاء',
-      'locked_message'
-    );
-  });
-
-  // تأكيد إجراء الإدمن
-  modalConfirmBtn.addEventListener('click', () => {
-    switch (currentAction) {
-      case 'clear_chat':
-        // مسح جميع الرسائل
-        remove(messagesRef);
-        showNotification('تم مسح جميع الرسائل', 'success');
-        break;
-        
-      case 'lock_chat':
-        const duration = parseInt(document.getElementById('modalLockDuration').value) || 30;
-        const reason = document.getElementById('modalLockReason').value.trim();
-        
-        const lockUntil = new Date();
-        lockUntil.setMinutes(lockUntil.getMinutes() + duration);
-        
+    switch(command) {
+      case 'lock':
+        // قفل الدردشة للجميع إلا الإدمن
         set(chatSettingsRef, {
           isLocked: true,
           lockedBy: currentUser.userId,
-          lockReason: reason || 'الدردشة مغلقة مؤقتاً من قبل الإدمن',
-          lockedUntil: lockUntil.toISOString(),
+          lockReason: 'الدردشة مقفولة من قبل الإدمن',
+          lockedUntil: null,
           lockedAt: serverTimestamp()
         });
         
-        showNotification(`تم قفل الدردشة لمدة ${duration} دقيقة`, 'success');
+        // إرسال رسالة النظام
+        push(messagesRef, {
+          userId: 'system',
+          userName: 'النظام',
+          userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+          text: `🔒 قام ${currentUser.name} بقفل الدردشة. فقط الإدمن يستطيع الكتابة الآن.`,
+          timestamp: serverTimestamp(),
+          isSystem: true
+        });
         break;
         
-      case 'mute_user':
-        const targetUser = document.getElementById('modalTargetUser').value.trim();
-        const muteDuration = parseInt(document.getElementById('modalMuteDuration').value) || 60;
+      case 'unlock':
+        // فتح الدردشة
+        set(chatSettingsRef, {
+          isLocked: false,
+          lockedBy: null,
+          lockReason: null,
+          lockedUntil: null,
+          lockedAt: null
+        });
         
-        if (!targetUser) {
-          showNotification('الرجاء إدخال معرف المستخدم', 'error');
-          return;
-        }
+        push(messagesRef, {
+          userId: 'system',
+          userName: 'النظام',
+          userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+          text: `🔓 قام ${currentUser.name} بفتح الدردشة للجميع.`,
+          timestamp: serverTimestamp(),
+          isSystem: true
+        });
+        break;
         
+      case 'mute':
+        // كتم المستخدم لمدة ساعة
         const muteUntil = new Date();
-        muteUntil.setMinutes(muteUntil.getMinutes() + muteDuration);
+        muteUntil.setHours(muteUntil.getHours() + 1);
         
-        set(ref(db, `mutedUsers/${targetUser}`), {
+        set(ref(db, `mutedUsers/${targetUserId}`), {
           mutedBy: currentUser.userId,
           mutedUntil: muteUntil.toISOString(),
           mutedAt: serverTimestamp()
         });
         
-        showNotification(`تم كتم المستخدم لمدة ${muteDuration} دقيقة`, 'success');
+        push(messagesRef, {
+          userId: 'system',
+          userName: 'النظام',
+          userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+          text: `🤫 قام ${currentUser.name} بكتم ${targetUser.name} لمدة ساعة.`,
+          timestamp: serverTimestamp(),
+          isSystem: true
+        });
         break;
         
-      case 'locked_message':
-        const lockedMessage = document.getElementById('modalLockedMessage').value.trim();
-        const messageLockDuration = parseInt(document.getElementById('modalMessageLockDuration').value) || 5;
+      case 'unmute':
+        // إزالة كتم المستخدم
+        remove(ref(db, `mutedUsers/${targetUserId}`));
         
-        if (!lockedMessage) {
-          showNotification('الرجاء كتابة الرسالة', 'error');
-          return;
-        }
-        
-        // قفل الدردشة أولاً
-        const messageLockUntil = new Date();
-        messageLockUntil.setMinutes(messageLockUntil.getMinutes() + messageLockDuration);
-        
-        set(chatSettingsRef, {
-          isLocked: true,
-          lockedBy: currentUser.userId,
-          lockReason: 'رسالة مقفلة من الإدمن',
-          lockedUntil: messageLockUntil.toISOString(),
-          lockedAt: serverTimestamp()
+        push(messagesRef, {
+          userId: 'system',
+          userName: 'النظام',
+          userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+          text: `🎤 قام ${currentUser.name} بإزالة كتم ${targetUser.name}.`,
+          timestamp: serverTimestamp(),
+          isSystem: true
         });
+        break;
         
-        // إرسال الرسالة المقفلة
-        setTimeout(() => {
-          push(messagesRef, {
-            userId: currentUser.userId,
-            userName: currentUser.name + ' (إدمن)',
-            userAvatar: currentUser.avatar,
-            text: '🔒 ' + lockedMessage,
-            timestamp: serverTimestamp(),
-            isAdmin: true
-          });
-          
-          // فتح الدردشة بعد الرسالة
-          setTimeout(() => {
-            set(chatSettingsRef, {
-              isLocked: false,
-              lockedBy: null,
-              lockReason: null,
-              lockedUntil: null,
-              lockedAt: null
-            });
-          }, messageLockDuration * 60 * 1000);
-          
-        }, 1000);
+      case 'role':
+        // ترقية المستخدم إلى إدمن
+        set(ref(db, `users/${targetUserId}/isAdmin`), true);
         
-        showNotification(`تم إرسال الرسالة المقفلة لمدة ${messageLockDuration} دقيقة`, 'success');
+        push(messagesRef, {
+          userId: 'system',
+          userName: 'النظام',
+          userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+          text: `👑 قام ${currentUser.name} بترقية ${targetUser.name} إلى إدمن.`,
+          timestamp: serverTimestamp(),
+          isSystem: true
+        });
+        break;
+        
+      case 'unrole':
+        // إزالة صلاحيات الإدمن
+        set(ref(db, `users/${targetUserId}/isAdmin`), false);
+        
+        push(messagesRef, {
+          userId: 'system',
+          userName: 'النظام',
+          userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+          text: `👤 قام ${currentUser.name} بإزالة صلاحيات الإدمن من ${targetUser.name}.`,
+          timestamp: serverTimestamp(),
+          isSystem: true
+        });
         break;
     }
     
-    hideAdminModal();
-  });
+    showNotification(`تم تنفيذ الأمر ${command} بنجاح`, 'success');
+  }
 
-  // إلغاء إجراء الإدمن
-  modalCancelBtn.addEventListener('click', hideAdminModal);
+  // إلغاء نافذة الأوامر
+  commandCancelBtn.addEventListener('click', hideCommandModal);
+
+  // معالجة الأوامر في الرسائل
+  function handleCommand(message) {
+    const text = message.text.trim();
+    
+    if (!text.startsWith('/')) return false;
+    
+    const parts = text.substring(1).split(' ');
+    const command = parts[0].toLowerCase();
+    const args = parts.slice(1);
+    
+    // التحقق من أن المرسل إدمن
+    if (!message.isAdmin) {
+      return false;
+    }
+    
+    // قائمة الأوامر المسموحة
+    const allowedCommands = ['lock', 'unlock', 'mute', 'unmute', 'role', 'unrole'];
+    
+    if (!allowedCommands.includes(command)) {
+      return false;
+    }
+    
+    // الأوامر التي تحتاج لاختيار مستخدم
+    const userSelectCommands = ['mute', 'unmute', 'role', 'unrole'];
+    
+    if (userSelectCommands.includes(command)) {
+      // عرض نافذة اختيار المستخدم
+      let title = '';
+      switch(command) {
+        case 'mute': title = 'اختر المستخدم للكتم'; break;
+        case 'unmute': title = 'اختر المستخدم لإزالة الكتم'; break;
+        case 'role': title = 'اختر المستخدم لترقيته إلى إدمن'; break;
+        case 'unrole': title = 'اختر المستخدم لإزالة صلاحيات الإدمن'; break;
+      }
+      showCommandModal(command, title);
+    } else {
+      // الأوامر التي لا تحتاج لاختيار مستخدم
+      executeCommand(command, null);
+    }
+    
+    return true;
+  }
 
   // إرسال رسالة
   function sendMessage() {
@@ -1182,7 +1157,6 @@
         showNotification(`أنت مكتوم لمدة ${diff} دقيقة أخرى`, 'error');
         return;
       } else {
-        // إزالة الكتم بعد انتهاء المدة
         remove(ref(db, `mutedUsers/${currentUser.userId}`));
       }
     }
@@ -1192,8 +1166,20 @@
       const lockUntil = new Date(chatLockedUntil);
       const now = new Date();
       
-      if (lockUntil > now) {
-        showNotification('الدردشة مغلقة مؤقتاً', 'error');
+      if (lockUntil > now && !currentUser.isAdmin) {
+        showNotification('الدردشة مغلقة مؤقتاً. فقط الإدمن يستطيع الكتابة.', 'error');
+        return;
+      }
+    }
+    
+    // التحقق إذا كانت الرسالة أمر
+    if (text.startsWith('/') && currentUser.isAdmin) {
+      if (handleCommand({
+        text: text,
+        isAdmin: currentUser.isAdmin,
+        userId: currentUser.userId
+      })) {
+        messageInput.value = '';
         return;
       }
     }
@@ -1235,14 +1221,13 @@
       const now = new Date();
       
       if (muteUntil > now) {
-        // لا تظهر رسائل المستخدم المكتوم للمستخدمين العاديين
         return;
       }
     }
     
     // إنشاء عنصر الرسالة
     const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${message.userId === currentUser.userId ? 'self' : 'other'} ${message.isAdmin ? 'admin' : ''}`;
+    messageDiv.className = `message ${message.userId === currentUser.userId ? 'self' : 'other'} ${message.isAdmin ? 'admin' : ''} ${message.isSystem ? 'system' : ''}`;
     messageDiv.dataset.messageId = messageId;
     messageDiv.dataset.userId = message.userId;
     
@@ -1255,23 +1240,32 @@
       }
     }
     
-    messageDiv.innerHTML = `
-      <img src="${message.userAvatar}" class="message-avatar" alt="${message.userName}">
-      <div class="message-content">
-        <div class="message-header">
-          <span class="message-name">${message.userName}</span>
-          <span class="message-time">${timeString}</span>
+    // إذا كانت رسالة النظام
+    if (message.isSystem) {
+      messageDiv.innerHTML = `
+        <div class="message-content">
+          <div class="message-text">${message.text}</div>
         </div>
-        <div class="message-text">${message.text}</div>
-      </div>
-      ${currentUser.isAdmin ? `<button class="delete-btn" onclick="deleteMessage('${messageId}')">×</button>` : ''}
-    `;
+      `;
+    } else {
+      messageDiv.innerHTML = `
+        <img src="${message.userAvatar}" class="message-avatar" alt="${message.userName}">
+        <div class="message-content">
+          <div class="message-header">
+            <span class="message-name">${message.userName}</span>
+            <span class="message-time">${timeString}</span>
+          </div>
+          <div class="message-text">${message.text}</div>
+        </div>
+        ${currentUser.isAdmin && !message.isSystem ? `<button class="delete-btn" onclick="deleteMessage('${messageId}')">×</button>` : ''}
+      `;
+    }
     
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   });
 
-  // دالة حذف الرسالة (للاستدعاء من onclick)
+  // دالة حذف الرسالة
   window.deleteMessage = function(messageId) {
     if (!currentUser.isAdmin) return;
     
@@ -1292,7 +1286,6 @@
     onlineStatus.textContent = '✓ متصل';
     onlineStatus.style.color = '';
     
-    // تحديث حالة الاتصال في الداتابيز
     if (currentUser.userId) {
       set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
     }
@@ -1308,12 +1301,11 @@
     if (currentUser.userId && navigator.onLine) {
       set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
     }
-  }, 30000); // كل 30 ثانية
+  }, 30000);
 
   // تحديث حالة المستخدم عند الخروج
   window.addEventListener('beforeunload', () => {
     if (currentUser.userId) {
-      // لا تحذف المستخدم، فقط تحديث lastSeen
       set(ref(db, `users/${currentUser.userId}/lastSeen`), serverTimestamp());
     }
   });
