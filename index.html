@@ -17,6 +17,8 @@
     --success: #4CAF50;
     --error: #ff4757;
     --warning: #ffa502;
+    --gold: #FFD700;
+    --gold-dark: #B8860B;
   }
   
   * {
@@ -237,6 +239,12 @@
     max-height: 100vh;
   }
   
+  @media (max-width: 1024px) {
+    .chat-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+  
   /* الشريط الجانبي */
   .sidebar {
     background: var(--white);
@@ -316,11 +324,6 @@
     gap: 10px;
   }
   
-  .admin-tools h3 svg {
-    width: 20px;
-    height: 20px;
-  }
-  
   .admin-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -365,6 +368,16 @@
   
   .admin-btn.warning {
     background: #ffa502;
+  }
+  
+  .admin-btn.gold {
+    background: linear-gradient(135deg, #FFD700, #B8860B);
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .admin-btn.gold:hover {
+    background: linear-gradient(135deg, #B8860B, #FFD700);
   }
   
   /* نافذة الأوامر */
@@ -509,6 +522,33 @@
     .chat-menu-btn {
       display: block;
     }
+    
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      max-width: 300px;
+      z-index: 1001;
+      border-radius: 0;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+    
+    .sidebar.active {
+      transform: translateX(0);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      padding: 10px;
+    }
+    
+    .chat-area {
+      border-radius: 8px;
+    }
   }
   
   .messages-container {
@@ -598,6 +638,28 @@
     padding: 0;
   }
   
+  .message.golden {
+    border: 2px solid var(--gold);
+    background: linear-gradient(135deg, #FFF8DC, #FFE4B5);
+    border-radius: 12px;
+    padding: 5px;
+    max-width: 85%;
+  }
+  
+  .message.golden .message-content {
+    background: linear-gradient(135deg, #FFF8DC, #FFE4B5);
+    border: 1px solid var(--gold);
+  }
+  
+  .message.golden .message-name {
+    color: var(--gold-dark);
+    font-weight: bold;
+  }
+  
+  .message.golden .message-time {
+    color: #8B7500;
+  }
+  
   .message.muted {
     opacity: 0.5;
   }
@@ -679,19 +741,6 @@
     color: #888;
     margin-top: 5px;
     font-style: italic;
-  }
-  
-  .message-image {
-    max-width: 100%;
-    max-height: 300px;
-    border-radius: 8px;
-    margin-top: 8px;
-    cursor: pointer;
-    transition: transform 0.3s;
-  }
-  
-  .message-image:hover {
-    transform: scale(1.02);
   }
   
   .delete-btn {
@@ -845,6 +894,74 @@
     font-weight: bold;
   }
   
+  /* نافذة الإشعارات */
+  .announcement-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 20px;
+  }
+  
+  .announcement-content {
+    background: var(--white);
+    padding: 25px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .announcement-content h3 {
+    color: var(--gold-dark);
+    margin-bottom: 15px;
+    text-align: center;
+    border-bottom: 2px solid var(--gold);
+    padding-bottom: 10px;
+  }
+  
+  #announcement-text {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    font-size: 14px;
+    min-height: 100px;
+    resize: vertical;
+    margin-bottom: 15px;
+    font-family: inherit;
+  }
+  
+  .announcement-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+  
+  .announcement-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .announcement-send {
+    background: linear-gradient(135deg, #FFD700, #B8860B);
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .announcement-send:hover {
+    background: linear-gradient(135deg, #B8860B, #FFD700);
+  }
+  
   /* إشعارات */
   .notification {
     position: fixed;
@@ -888,25 +1005,12 @@
     }
     
     .sidebar {
-      display: none;
-      position: fixed;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      max-width: 300px;
-      z-index: 1001;
-      border-radius: 0;
+      display: block;
+      transform: translateX(100%);
     }
     
     .sidebar.active {
-      display: block;
-      animation: slideInRight 0.3s ease;
-    }
-    
-    @keyframes slideInRight {
-      from { transform: translateX(100%); }
-      to { transform: translateX(0); }
+      transform: translateX(0);
     }
     
     .message {
@@ -949,13 +1053,13 @@
     .message-time {
       font-size: 10px;
     }
-  }
-  
-  @media (max-width: 480px) {
+    
     .message {
       max-width: 95%;
     }
-    
+  }
+  
+  @media (max-width: 480px) {
     .message-text {
       font-size: 13px;
     }
@@ -978,14 +1082,14 @@
     }
   }
   
-  /* نافذة عرض الصورة */
+  /* نافذة عرض الصورة مع تكبير/تصغير */
   .image-viewer {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.95);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -993,10 +1097,49 @@
     padding: 20px;
   }
   
+  .image-viewer-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90vh;
+  }
+  
   .image-viewer img {
     max-width: 100%;
-    max-height: 90vh;
+    max-height: 80vh;
     border-radius: 8px;
+    transition: transform 0.3s ease;
+  }
+  
+  .image-viewer-controls {
+    position: absolute;
+    bottom: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 25px;
+    z-index: 3001;
+  }
+  
+  .viewer-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+  }
+  
+  .viewer-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
   }
   
   .close-viewer {
@@ -1011,6 +1154,42 @@
     height: 40px;
     cursor: pointer;
     font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .close-viewer:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  /* زر عرض اسم الملف */
+  .file-name-display {
+    background: #f8f9fa;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 5px;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .file-name-display.active {
+    display: flex;
+  }
+  
+  .remove-file {
+    background: #ff4757;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1072,9 +1251,28 @@
   </div>
 </div>
 
-<!-- نافذة عرض الصورة -->
+<!-- نافذة الإشعارات الذهبية -->
+<div id="announcementModal" class="announcement-modal" style="display: none;">
+  <div class="announcement-content">
+    <h3>📢 إرسال إشعار ذهبي</h3>
+    <textarea id="announcement-text" placeholder="اكتب الإشعار الذهبي هنا..."></textarea>
+    <div class="announcement-buttons">
+      <button id="announcementCancelBtn" class="announcement-btn command-cancel">إلغاء</button>
+      <button id="announcementSendBtn" class="announcement-btn announcement-send">إرسال</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة عرض الصورة مع تكبير/تصغير -->
 <div id="imageViewer" class="image-viewer" style="display: none;">
-  <img id="viewerImage" src="" alt="صورة">
+  <div class="image-viewer-content">
+    <img id="viewerImage" src="" alt="صورة">
+    <div class="image-viewer-controls">
+      <button id="zoomInBtn" class="viewer-btn">+</button>
+      <button id="zoomOutBtn" class="viewer-btn">-</button>
+      <button id="resetZoomBtn" class="viewer-btn">↺</button>
+    </div>
+  </div>
   <button id="closeViewer" class="close-viewer">✕</button>
 </div>
 
@@ -1112,6 +1310,11 @@
             <button id="image-upload-chat" title="إرسال صورة"></button>
             <button id="send-btn">إرسال</button>
           </div>
+        </div>
+        <!-- عرض اسم الملف -->
+        <div id="fileNameDisplay" class="file-name-display">
+          <span id="fileNameText"></span>
+          <button id="removeFileBtn" class="remove-file">×</button>
         </div>
       </div>
       
@@ -1165,6 +1368,12 @@
           </button>
           <button id="unroleBtn" class="admin-btn secondary">
             إزالة إدمن
+          </button>
+        </div>
+        
+        <div class="admin-buttons">
+          <button id="announcementBtn" class="admin-btn gold">
+            إرسال إشعار ذهبي
           </button>
         </div>
         
@@ -1235,9 +1444,25 @@
   const imageUploadBtn = document.getElementById('image-upload-chat');
   const sidebar = document.getElementById('sidebar');
   const chatMenuBtn = document.getElementById('chatMenuBtn');
+  const fileNameDisplay = document.getElementById('fileNameDisplay');
+  const fileNameText = document.getElementById('fileNameText');
+  const removeFileBtn = document.getElementById('removeFileBtn');
+  
+  // نافذة الصور
   const imageViewer = document.getElementById('imageViewer');
   const viewerImage = document.getElementById('viewerImage');
   const closeViewer = document.getElementById('closeViewer');
+  const zoomInBtn = document.getElementById('zoomInBtn');
+  const zoomOutBtn = document.getElementById('zoomOutBtn');
+  const resetZoomBtn = document.getElementById('resetZoomBtn');
+  
+  // نافذة الإشعارات الذهبية
+  const announcementModal = document.getElementById('announcementModal');
+  const announcementText = document.getElementById('announcement-text');
+  const announcementSendBtn = document.getElementById('announcementSendBtn');
+  const announcementCancelBtn = document.getElementById('announcementCancelBtn');
+  
+  // مؤشر الكتابة
   const typingIndicator = document.getElementById('typingIndicator');
   
   // أدوات الإدمن
@@ -1249,6 +1474,7 @@
   const roleBtn = document.getElementById('roleBtn');
   const unroleBtn = document.getElementById('unroleBtn');
   const clearChatBtn = document.getElementById('clearChatBtn');
+  const announcementBtn = document.getElementById('announcementBtn');
   
   // نافذة الأوامر
   const commandModal = document.getElementById('commandModal');
@@ -1276,6 +1502,9 @@
   let editingMessageId = null;
   let typingTimeout = null;
   let lastTypingUpdate = 0;
+  let selectedFile = null;
+  let currentImageScale = 1;
+  let currentImageRotation = 0;
 
   // منع التمرير الأفقي
   window.addEventListener('scroll', function(e) {
@@ -1846,6 +2075,17 @@
     currentCommand = '';
   }
 
+  // إظهار نافذة الإشعار الذهبي
+  function showAnnouncementModal() {
+    announcementText.value = '';
+    announcementModal.style.display = 'flex';
+  }
+
+  // إخفاء نافذة الإشعار الذهبي
+  function hideAnnouncementModal() {
+    announcementModal.style.display = 'none';
+  }
+
   // زر قفل الدردشة
   lockBtn.addEventListener('click', () => {
     if (!currentUser.isAdmin) return;
@@ -1882,6 +2122,12 @@
     showCommandModal('unrole', 'اختر المستخدم لإزالة صلاحيات الإدمن');
   });
 
+  // زر الإشعار الذهبي
+  announcementBtn.addEventListener('click', () => {
+    if (!currentUser.isAdmin) return;
+    showAnnouncementModal();
+  });
+
   // زر مسح المحادثة
   clearChatBtn.addEventListener('click', async () => {
     if (!currentUser.isAdmin) return;
@@ -1909,6 +2155,35 @@
 
   // إلغاء نافذة الأوامر
   commandCancelBtn.addEventListener('click', hideCommandModal);
+
+  // إلغاء نافذة الإشعار
+  announcementCancelBtn.addEventListener('click', hideAnnouncementModal);
+
+  // إرسال الإشعار الذهبي
+  announcementSendBtn.addEventListener('click', async () => {
+    const text = announcementText.value.trim();
+    if (!text) {
+      showNotification('الرجاء كتابة الإشعار', 'error');
+      return;
+    }
+    
+    try {
+      await push(messagesRef, {
+        userId: 'system-gold',
+        userName: 'إشعار من الإدارة',
+        userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
+        text: text,
+        timestamp: serverTimestamp(),
+        isGolden: true
+      });
+      
+      hideAnnouncementModal();
+      showNotification('تم إرسال الإشعار الذهبي بنجاح', 'success');
+    } catch (error) {
+      console.error('خطأ في إرسال الإشعار:', error);
+      showNotification('حدث خطأ في إرسال الإشعار', 'error');
+    }
+  });
 
   // تنفيذ الأوامر
   async function executeCommand(command, targetUserId, targetUserName, targetShortId) {
@@ -2220,10 +2495,9 @@
   // إرسال رسالة
   async function sendMessage() {
     const text = messageInput.value.trim();
-    const file = imageFileInput.files[0];
     
     // إذا لم يكن هناك نص ولا صورة
-    if (!text && !file) {
+    if (!text && !selectedFile) {
       showNotification('الرجاء كتابة رسالة أو اختيار صورة', 'error');
       return;
     }
@@ -2232,8 +2506,8 @@
       let success = false;
       
       // إذا كان هناك صورة
-      if (file) {
-        const imageUrl = await uploadImage(file);
+      if (selectedFile) {
+        const imageUrl = await uploadImage(selectedFile);
         if (imageUrl) {
           success = await sendImageMessage(imageUrl, text);
         }
@@ -2246,6 +2520,8 @@
         // مسح حقل الإدخال وملف الصورة
         messageInput.value = '';
         imageFileInput.value = '';
+        selectedFile = null;
+        fileNameDisplay.classList.remove('active');
         messageInput.focus();
         
         // تحديث حالة الكتابة
@@ -2316,13 +2592,38 @@
         return;
       }
       
+      selectedFile = file;
+      fileNameText.textContent = file.name;
+      fileNameDisplay.classList.add('active');
+      
       showNotification('تم اختيار صورة، اضغط إرسال لإرسالها', 'info');
     }
   });
 
+  // إزالة الملف المختار
+  removeFileBtn.addEventListener('click', () => {
+    selectedFile = null;
+    imageFileInput.value = '';
+    fileNameDisplay.classList.remove('active');
+  });
+
   // زر القائمة للجوال
   chatMenuBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('active');
+    if (window.innerWidth <= 1024) {
+      if (sidebar.style.display === 'none' || sidebar.style.display === '') {
+        sidebar.style.display = 'block';
+        setTimeout(() => {
+          sidebar.classList.add('active');
+        }, 10);
+      } else {
+        sidebar.classList.remove('active');
+        setTimeout(() => {
+          sidebar.style.display = 'none';
+        }, 300);
+      }
+    } else {
+      sidebar.classList.toggle('active');
+    }
   });
 
   // إغلاق الشريط الجانبي عند الضغط خارجها
@@ -2332,7 +2633,70 @@
         !sidebar.contains(e.target) && 
         e.target !== chatMenuBtn) {
       sidebar.classList.remove('active');
+      setTimeout(() => {
+        sidebar.style.display = 'none';
+      }, 300);
     }
+  });
+
+  // إغلاق نافذة عرض الصورة
+  closeViewer.addEventListener('click', () => {
+    imageViewer.style.display = 'none';
+    viewerImage.src = '';
+    viewerImage.style.transform = 'scale(1) rotate(0deg)';
+    currentImageScale = 1;
+    currentImageRotation = 0;
+    document.body.style.overflow = 'auto';
+  });
+
+  // تكبير الصورة
+  zoomInBtn.addEventListener('click', () => {
+    currentImageScale = Math.min(currentImageScale + 0.2, 3);
+    viewerImage.style.transform = `scale(${currentImageScale}) rotate(${currentImageRotation}deg)`;
+  });
+
+  // تصغير الصورة
+  zoomOutBtn.addEventListener('click', () => {
+    currentImageScale = Math.max(currentImageScale - 0.2, 0.5);
+    viewerImage.style.transform = `scale(${currentImageScale}) rotate(${currentImageRotation}deg)`;
+  });
+
+  // إعادة تعيين التكبير
+  resetZoomBtn.addEventListener('click', () => {
+    currentImageScale = 1;
+    currentImageRotation = 0;
+    viewerImage.style.transform = 'scale(1) rotate(0deg)';
+  });
+
+  // تكبير/تصغير باللمس
+  let initialDistance = null;
+  imageViewer.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      initialDistance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+  });
+
+  imageViewer.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && initialDistance !== null) {
+      e.preventDefault();
+      const currentDistance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      
+      const scaleChange = currentDistance / initialDistance;
+      currentImageScale = Math.max(0.5, Math.min(currentImageScale * scaleChange, 3));
+      viewerImage.style.transform = `scale(${currentImageScale}) rotate(${currentImageRotation}deg)`;
+      
+      initialDistance = currentDistance;
+    }
+  });
+
+  imageViewer.addEventListener('touchend', () => {
+    initialDistance = null;
   });
 
   // استقبال الرسائل الجديدة
@@ -2362,8 +2726,11 @@
     // إضافة ID فريد للرسالة
     messageDiv.id = `msg-${messageId}`;
     
+    // تحديد نوع الرسالة
     if (message.userId === 'system') {
       messageDiv.className = 'message system';
+    } else if (message.userId === 'system-gold') {
+      messageDiv.className = 'message golden';
     } else {
       messageDiv.className = `message ${message.userId === currentUser.userId ? 'self' : 'other'} ${message.isAdmin ? 'admin' : ''}`;
     }
@@ -2396,6 +2763,17 @@
           <div class="message-text" style="color: #2e7d32; font-weight: 500;">${message.text}</div>
         </div>
       `;
+    } else if (message.userId === 'system-gold') {
+      // الإشعار الذهبي
+      messageDiv.innerHTML = `
+        <div class="message-content">
+          <div class="message-header">
+            <span class="message-name" style="color: var(--gold-dark); font-weight: bold;">${message.userName}</span>
+            <span class="message-time" style="color: #8B7500;">${timeString}</span>
+          </div>
+          <div class="message-text" style="color: #333; font-weight: 500;">${message.text}</div>
+        </div>
+      `;
     } else {
       // استخدام الـ ID القصير في العرض
       const displayName = `${message.userName} (${message.shortId || 'ID'})${message.isAdmin ? ' [إدمن]' : ''}`;
@@ -2403,7 +2781,7 @@
       // تحضير محتوى الصورة
       let imageContent = '';
       if (message.imageUrl) {
-        imageContent = `<img src="${message.imageUrl}" class="message-image" onclick="viewImage('${message.imageUrl}')" alt="صورة">`;
+        imageContent = `<img src="${message.imageUrl}" class="message-image" onclick="viewImage('${message.imageUrl}')" alt="صورة" style="cursor: pointer;">`;
       }
       
       messageDiv.innerHTML = `
@@ -2418,7 +2796,7 @@
           ${imageContent}
           ${editedText}
         </div>
-        ${currentUser.isAdmin && message.userId !== 'system' ? `<button class="delete-btn" onclick="deleteMessage('${messageId}')">×</button>` : ''}
+        ${currentUser.isAdmin && message.userId !== 'system' && message.userId !== 'system-gold' ? `<button class="delete-btn" onclick="deleteMessage('${messageId}')">×</button>` : ''}
       `;
       
       // إضافة حدث النقر المزدوج لتعديل الرسالة
@@ -2464,19 +2842,17 @@
     }
   };
 
-  // دالة عرض الصورة
+  // دالة عرض الصورة مع تكبير/تصغير
   window.viewImage = function(imageUrl) {
     viewerImage.src = imageUrl;
     imageViewer.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    
+    // إعادة تعيين التكبير
+    currentImageScale = 1;
+    currentImageRotation = 0;
+    viewerImage.style.transform = 'scale(1) rotate(0deg)';
   };
-
-  // إغلاق نافذة عرض الصورة
-  closeViewer.addEventListener('click', () => {
-    imageViewer.style.display = 'none';
-    viewerImage.src = '';
-    document.body.style.overflow = 'auto';
-  });
 
   // إغلاق النافذة بالضغط خارج الصورة
   imageViewer.addEventListener('click', (e) => {
@@ -2520,6 +2896,7 @@
       sidebar.classList.remove('active');
     } else {
       sidebar.style.display = 'none';
+      sidebar.classList.remove('active');
     }
   });
 
