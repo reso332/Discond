@@ -83,34 +83,29 @@
     font-weight: 500;
   }
   
-  .login-options {
+  .login-form {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
   }
   
-  .google-login-btn {
+  .login-input {
     width: 100%;
     padding: 14px 15px;
-    background: white;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     border-radius: 8px;
     font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
     transition: all 0.3s;
   }
   
-  .google-login-btn:hover {
-    background: #f5f5f5;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  .login-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(109, 142, 209, 0.2);
   }
   
-  .guest-login-btn {
+  .login-btn {
     width: 100%;
     padding: 14px 15px;
     background: var(--primary);
@@ -119,15 +114,54 @@
     border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+  }
+  
+  .login-btn:hover {
+    background: var(--primary-light);
+  }
+  
+  .divider {
+    display: flex;
+    align-items: center;
+    margin: 25px 0;
+    color: var(--text-light);
+  }
+  
+  .divider::before,
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  
+  .divider span {
+    padding: 0 15px;
+    font-size: 14px;
+  }
+  
+  .google-login-btn {
+    width: 100%;
+    padding: 14px 15px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
     transition: all 0.3s;
+    font-weight: 500;
+    margin-bottom: 20px;
   }
   
-  .guest-login-btn:hover {
-    background: var(--primary-light);
+  .google-login-btn:hover {
+    background: #f5f5f5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
   
   .google-icon {
@@ -158,65 +192,12 @@
     100% { transform: rotate(360deg); }
   }
   
-  /* نموذج تسجيل الدخول كضيف */
-  .guest-form {
-    display: none;
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-  }
-  
-  .guest-form.active {
-    display: block;
-  }
-  
-  .guest-form input {
-    width: 100%;
-    padding: 12px 15px;
-    margin-bottom: 10px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 14px;
-  }
-  
-  .guest-form input:focus {
-    outline: none;
-    border-color: var(--primary);
-  }
-  
-  .guest-form-buttons {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .guest-submit-btn {
-    flex: 1;
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  
-  .guest-cancel-btn {
-    flex: 1;
-    background: #f8f9fa;
-    color: var(--text);
-    border: 1px solid var(--border);
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  
   /* زر اختيار الصور */
   .image-upload-btn {
     width: 100%;
     padding: 12px 15px;
     background: #f8f9fa;
-    border: 1px dashed #ccc;
+    border: 1px solid var(--border);
     border-radius: 8px;
     font-size: 14px;
     cursor: pointer;
@@ -226,11 +207,13 @@
     gap: 10px;
     margin-bottom: 15px;
     transition: all 0.3s;
+    color: var(--text-light);
   }
   
   .image-upload-btn:hover {
     background: #e9ecef;
     border-color: var(--primary);
+    color: var(--text);
   }
   
   .image-preview {
@@ -333,8 +316,9 @@
     gap: 10px;
   }
   
-  .admin-tools h3:before {
-    content: "🛡️";
+  .admin-tools h3 svg {
+    width: 20px;
+    height: 20px;
   }
   
   .admin-buttons {
@@ -716,11 +700,12 @@
   #message-input:focus {
     outline: none;
     border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(109, 142, 209, 0.2);
   }
   
   .input-buttons {
     display: flex;
-    gap: 5px;
+    gap: 8px;
     align-items: center;
   }
   
@@ -728,7 +713,7 @@
     background: var(--primary);
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
@@ -738,6 +723,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    font-weight: 500;
   }
   
   #send-btn:disabled {
@@ -752,22 +738,37 @@
   #image-upload-chat {
     background: #f8f9fa;
     color: var(--text);
-    border: none;
+    border: 1px solid var(--border);
     padding: 8px;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 20px;
-    transition: background 0.3s;
+    font-size: 14px;
+    transition: all 0.3s;
     flex-shrink: 0;
     width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  #image-upload-chat::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3E%3Cpath d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E") center no-repeat;
+    background-size: 20px 20px;
+    opacity: 0.7;
   }
   
   #image-upload-chat:hover {
     background: #e9ecef;
+    border-color: var(--primary);
   }
   
   .status {
@@ -940,26 +941,31 @@
   <div class="login-box">
     <h2>مرحباً بك في Discond</h2>
     
-    <div class="login-options">
-      <!-- زر تسجيل الدخول بـ Google -->
-      <div class="g_id_onload" data-client_id="1009347423340-movq119nqjkv18b3eus1p63ebs587daj.apps.googleusercontent.com" data-context="signin" data-callback="handleCredentialResponse" data-auto_prompt="false"></div>
-      
-      <div id="googleSignIn" class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_blue" data-text="signin_with" data-shape="pill" data-logo_alignment="left"></div>
-      
-      <!-- زر الدخول كضيف -->
-      <button id="guestLoginBtn" class="guest-login-btn">
-        👤 الدخول كضيف
-      </button>
+    <div class="login-form">
+      <input type="text" id="usernameInput" class="login-input" placeholder="اسم المستخدم" required maxlength="20">
+      <input type="email" id="emailInput" class="login-input" placeholder="البريد الإلكتروني (اختياري)">
+      <button id="guestLoginBtn" class="login-btn">تسجيل الدخول كضيف</button>
     </div>
     
-    <!-- نموذج تسجيل الدخول كضيف -->
-    <div id="guestForm" class="guest-form">
-      <input type="text" id="guestName" placeholder="اسم المستخدم" maxlength="20" required>
-      <input type="text" id="guestAvatar" placeholder="رابط صورة الملف (اختياري)">
-      <div class="guest-form-buttons">
-        <button id="guestSubmitBtn" class="guest-submit-btn">تسجيل الدخول</button>
-        <button id="guestCancelBtn" class="guest-cancel-btn">إلغاء</button>
-      </div>
+    <div class="divider">
+      <span>أو</span>
+    </div>
+    
+    <!-- زر تسجيل الدخول بـ Google -->
+    <div id="g_id_onload"
+         data-client_id="1009347423340-movq119nqjkv18b3eus1p63ebs587daj.apps.googleusercontent.com"
+         data-context="signin"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+    
+    <div id="googleSignIn" class="g_id_signin" 
+         data-type="standard" 
+         data-size="large" 
+         data-theme="filled_blue" 
+         data-text="signin_with" 
+         data-shape="pill" 
+         data-logo_alignment="left">
     </div>
     
     <!-- مؤشر التحميل -->
@@ -997,7 +1003,7 @@
     <div class="chat-area">
       <!-- حالة قفل الدردشة -->
       <div id="chatLocked" class="chat-locked" style="display: none;">
-        <h3>🔒 الدردشة مغلقة مؤقتاً</h3>
+        <h3>الدردشة مغلقة مؤقتاً</h3>
         <p id="lockReason">سيتم فتح الدردشة قريباً...</p>
         <p id="lockTime" style="font-size: 12px; color: #666;"></p>
       </div>
@@ -1011,7 +1017,7 @@
           <textarea id="message-input" placeholder="اكتب رسالتك هنا..."></textarea>
           <div class="input-buttons">
             <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
-            <button id="image-upload-chat" title="إرسال صورة">📷</button>
+            <button id="image-upload-chat" title="إرسال صورة"></button>
             <button id="send-btn">إرسال</button>
           </div>
         </div>
@@ -1045,34 +1051,34 @@
         
         <div class="admin-buttons">
           <button id="lockBtn" class="admin-btn danger">
-            <span>🔒</span> قفل
+            قفل الدردشة
           </button>
           <button id="unlockBtn" class="admin-btn success">
-            <span>🔓</span> فتح
+            فتح الدردشة
           </button>
         </div>
         
         <div class="admin-buttons">
           <button id="muteBtn" class="admin-btn warning">
-            <span>🤫</span> كتم
+            كتم مستخدم
           </button>
           <button id="unmuteBtn" class="admin-btn warning">
-            <span>🎤</span> إزالة كتم
+            إزالة كتم
           </button>
         </div>
         
         <div class="admin-buttons">
           <button id="roleBtn" class="admin-btn secondary">
-            <span>👑</span> ترقية
+            ترقية لإدمن
           </button>
           <button id="unroleBtn" class="admin-btn secondary">
-            <span>👤</span> إزالة ترقية
+            إزالة إدمن
           </button>
         </div>
         
         <div style="margin-top: 15px;">
           <button id="clearChatBtn" class="admin-btn danger" style="width: 100%;">
-            <span>🗑️</span> مسح المحادثة
+            مسح المحادثة
           </button>
         </div>
         
@@ -1118,12 +1124,9 @@
   const loginScreen = document.getElementById('loginScreen');
   const mainApp = document.getElementById('mainApp');
   const loadingDiv = document.getElementById('loading');
+  const usernameInput = document.getElementById('usernameInput');
+  const emailInput = document.getElementById('emailInput');
   const guestLoginBtn = document.getElementById('guestLoginBtn');
-  const guestForm = document.getElementById('guestForm');
-  const guestNameInput = document.getElementById('guestName');
-  const guestAvatarInput = document.getElementById('guestAvatar');
-  const guestSubmitBtn = document.getElementById('guestSubmitBtn');
-  const guestCancelBtn = document.getElementById('guestCancelBtn');
   const profileName = document.getElementById('profileName');
   const profileAvatar = document.getElementById('profileAvatar');
   const adminBadge = document.getElementById('adminBadge');
@@ -1211,11 +1214,9 @@
     if (show) {
       loadingDiv.classList.add('active');
       guestLoginBtn.disabled = true;
-      guestSubmitBtn.disabled = true;
     } else {
       loadingDiv.classList.remove('active');
       guestLoginBtn.disabled = false;
-      guestSubmitBtn.disabled = false;
     }
   }
 
@@ -1229,26 +1230,14 @@
     return result;
   }
 
-  // إظهار نموذج الضيف
-  function showGuestForm() {
-    guestForm.classList.add('active');
-    guestNameInput.focus();
-  }
-
-  // إخفاء نموذج الضيف
-  function hideGuestForm() {
-    guestForm.classList.remove('active');
-    guestNameInput.value = '';
-    guestAvatarInput.value = '';
-  }
-
   // معالجة تسجيل الدخول كضيف
   async function handleGuestLogin() {
-    const name = guestNameInput.value.trim();
+    const name = usernameInput.value.trim();
+    const email = emailInput.value.trim();
     
     if (!name) {
       showNotification('الرجاء إدخال اسم المستخدم', 'error');
-      guestNameInput.focus();
+      usernameInput.focus();
       return;
     }
     
@@ -1257,8 +1246,8 @@
     try {
       // إنشاء بيانات المستخدم الضيف
       currentUser.name = name;
-      currentUser.email = 'ضيف';
-      currentUser.avatar = guestAvatarInput.value.trim() || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6d8ed1&color=fff`;
+      currentUser.email = email || 'ضيف';
+      currentUser.avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6d8ed1&color=fff`;
       currentUser.googleId = '';
       currentUser.shortId = generateShortId();
       currentUser.userId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -1368,7 +1357,7 @@
       // تحديث واجهة المستخدم
       profileName.textContent = currentUser.name;
       profileAvatar.src = currentUser.avatar;
-      userEmail.textContent = currentUser.email || 'ضيف';
+      userEmail.textContent = currentUser.email;
       userIdText.textContent = currentUser.shortId;
       
       // إخفاء شاشة التسجيل وإظهار الشات
@@ -1381,8 +1370,9 @@
         sidebarToggle.style.display = 'flex';
       }
       
-      // إخفاء نموذج الضيف إذا كان مفتوح
-      hideGuestForm();
+      // مسح حقول الإدخال
+      usernameInput.value = '';
+      emailInput.value = '';
       
       // التركيز على حقل الرسالة
       setTimeout(() => {
@@ -1462,13 +1452,13 @@
           // تحديث واجهة المستخدم
           profileName.textContent = currentUser.name;
           profileAvatar.src = currentUser.avatar;
-          userEmail.textContent = currentUser.email || 'ضيف';
+          userEmail.textContent = currentUser.email;
           userIdText.textContent = currentUser.shortId;
           
           // تحديث بيانات المستخدم في Firebase
           await set(ref(db, `users/${currentUser.userId}`), {
             name: currentUser.name,
-            email: currentUser.email || 'ضيف',
+            email: currentUser.email,
             googleId: currentUser.googleId || '',
             shortId: currentUser.shortId,
             avatar: currentUser.avatar,
@@ -1665,7 +1655,7 @@
             <img src="${user.avatar}" class="command-user-avatar" alt="${user.name}"
                  onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=6d8ed1&color=fff'">
             <div class="command-user-info">
-              <div class="command-user-name">${user.name} (${user.shortId}) ${user.isAdmin ? '👑' : ''}</div>
+              <div class="command-user-name">${user.name} (${user.shortId}) ${user.isAdmin ? '[إدمن]' : ''}</div>
               <div class="command-user-id">${user.email || 'لا يوجد بريد'}</div>
             </div>
           `;
@@ -1748,7 +1738,7 @@
           userId: 'system',
           userName: 'النظام',
           userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-          text: `🗑️ قام ${currentUser.name} (${currentUser.shortId}) بمسح جميع الرسائل.`,
+          text: `قام ${currentUser.name} (${currentUser.shortId}) بمسح جميع الرسائل.`,
           timestamp: serverTimestamp(),
           isSystem: true
         });
@@ -1780,7 +1770,7 @@
             userId: 'system',
             userName: 'النظام',
             userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-            text: `🔒 قام ${currentUser.name} (${currentUser.shortId}) بقفل الدردشة. فقط الإدمن يستطيع الكتابة الآن.`,
+            text: `قام ${currentUser.name} (${currentUser.shortId}) بقفل الدردشة. فقط الإدمن يستطيع الكتابة الآن.`,
             timestamp: serverTimestamp(),
             isSystem: true
           });
@@ -1802,7 +1792,7 @@
             userId: 'system',
             userName: 'النظام',
             userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-            text: `🔓 قام ${currentUser.name} (${currentUser.shortId}) بفتح الدردشة للجميع.`,
+            text: `قام ${currentUser.name} (${currentUser.shortId}) بفتح الدردشة للجميع.`,
             timestamp: serverTimestamp(),
             isSystem: true
           });
@@ -1832,7 +1822,7 @@
             userId: 'system',
             userName: 'النظام',
             userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-            text: `🤫 قام ${currentUser.name} (${currentUser.shortId}) بكتم ${targetUserName} (${targetShortId}) لمدة ساعة.`,
+            text: `قام ${currentUser.name} (${currentUser.shortId}) بكتم ${targetUserName} (${targetShortId}) لمدة ساعة.`,
             timestamp: serverTimestamp(),
             isSystem: true
           });
@@ -1853,7 +1843,7 @@
             userId: 'system',
             userName: 'النظام',
             userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-            text: `🎤 قام ${currentUser.name} (${currentUser.shortId}) بإزالة كتم ${targetUserName} (${targetShortId}).`,
+            text: `قام ${currentUser.name} (${currentUser.shortId}) بإزالة كتم ${targetUserName} (${targetShortId}).`,
             timestamp: serverTimestamp(),
             isSystem: true
           });
@@ -1882,7 +1872,7 @@
             userId: 'system',
             userName: 'النظام',
             userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-            text: `👑 قام ${currentUser.name} (${currentUser.shortId}) بترقية ${targetUserName} (${targetShortId}) إلى إدمن.`,
+            text: `قام ${currentUser.name} (${currentUser.shortId}) بترقية ${targetUserName} (${targetShortId}) إلى إدمن.`,
             timestamp: serverTimestamp(),
             isSystem: true
           });
@@ -1911,7 +1901,7 @@
             userId: 'system',
             userName: 'النظام',
             userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-            text: `👤 قام ${currentUser.name} (${currentUser.shortId}) بإزالة صلاحيات الإدمن من ${targetUserName} (${targetShortId}).`,
+            text: `قام ${currentUser.name} (${currentUser.shortId}) بإزالة صلاحيات الإدمن من ${targetUserName} (${targetShortId}).`,
             timestamp: serverTimestamp(),
             isSystem: true
           });
@@ -2006,7 +1996,7 @@
         text: text,
         timestamp: serverTimestamp(),
         isAdmin: currentUser.isAdmin,
-        email: currentUser.email || 'ضيف'
+        email: currentUser.email
       });
       
       return true;
@@ -2045,7 +2035,7 @@
         imageUrl: imageUrl,
         timestamp: serverTimestamp(),
         isAdmin: currentUser.isAdmin,
-        email: currentUser.email || 'ضيف'
+        email: currentUser.email
       });
       
       return true;
@@ -2123,6 +2113,14 @@
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+    }
+  });
+
+  // تسجيل الدخول بالإنتر
+  usernameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleGuestLogin();
     }
   });
 
@@ -2214,7 +2212,7 @@
       `;
     } else {
       // استخدام الـ ID القصير في العرض
-      const displayName = `${message.userName} (${message.shortId || 'ID'})${message.isAdmin ? ' 👑' : ''}`;
+      const displayName = `${message.userName} (${message.shortId || 'ID'})${message.isAdmin ? ' [إدمن]' : ''}`;
       
       // تحضير محتوى الصورة
       let imageContent = '';
@@ -2357,22 +2355,14 @@
   });
 
   // تفعيل الأزرار
-  guestLoginBtn.addEventListener('click', showGuestForm);
-  guestSubmitBtn.addEventListener('click', handleGuestLogin);
-  guestCancelBtn.addEventListener('click', hideGuestForm);
+  guestLoginBtn.addEventListener('click', handleGuestLogin);
   logoutBtn.addEventListener('click', logout);
-
-  // إدخال الضيف بالإنتر
-  guestNameInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleGuestLogin();
-    }
-  });
 
   // التحقق من الجلسة عند تحميل الصفحة
   window.addEventListener('DOMContentLoaded', () => {
     checkExistingSession();
+    // التركيز على حقل اسم المستخدم
+    usernameInput.focus();
   });
 
   // جعل الدوال متاحة عالمياً لـ Google
