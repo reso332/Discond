@@ -2,8 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Discond</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root {
     --primary: #6d8ed1;
@@ -23,18 +24,32 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
   }
   
   body {
     background: linear-gradient(135deg, #f5f7fa 0%, #e8f0fe 100%);
     min-height: 100vh;
     color: var(--text);
+    touch-action: manipulation;
   }
   
   .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    height: 100%;
+    width: 100%;
   }
   
   /* تسجيل الدخول */
@@ -49,6 +64,7 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: 20px;
   }
   
   .login-box {
@@ -67,34 +83,87 @@
     font-weight: 500;
   }
   
-  .login-input {
+  .google-login-btn {
     width: 100%;
-    padding: 12px 15px;
-    margin-bottom: 20px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 16px;
-  }
-  
-  .login-input:focus {
-    outline: none;
-    border-color: var(--primary);
-  }
-  
-  .login-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 14px 30px;
+    padding: 14px 15px;
+    background: white;
+    border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
-    width: 100%;
-    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    transition: all 0.3s;
   }
   
-  .login-btn:hover {
-    background: var(--primary-light);
+  .google-login-btn:hover {
+    background: #f5f5f5;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .google-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .loading {
+    display: none;
+    margin: 20px 0;
+  }
+  
+  .loading.active {
+    display: inline-block;
+  }
+  
+  .spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* زر اختيار الصور */
+  .image-upload-btn {
+    width: 100%;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+  }
+  
+  .image-upload-btn:hover {
+    background: #e9ecef;
+    border-color: var(--primary);
+  }
+  
+  .image-preview {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    display: none;
+  }
+  
+  .image-preview.active {
+    display: block;
   }
   
   /* الشات الرئيسي */
@@ -103,6 +172,7 @@
     grid-template-columns: 1fr 300px;
     gap: 20px;
     height: calc(100vh - 40px);
+    max-height: 100vh;
   }
   
   /* الشريط الجانبي */
@@ -112,6 +182,7 @@
     padding: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   
   .user-profile {
@@ -145,6 +216,23 @@
     font-size: 12px;
     display: inline-block;
     margin-right: 10px;
+  }
+  
+  .logout-btn {
+    background: #ff4757;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 15px;
+    transition: background 0.3s;
+    width: 100%;
+  }
+  
+  .logout-btn:hover {
+    background: #ff6b81;
   }
   
   /* أدوات الإدمن */
@@ -228,13 +316,14 @@
     justify-content: center;
     align-items: center;
     z-index: 2000;
+    padding: 20px;
   }
   
   .command-modal-content {
     background: var(--white);
     padding: 20px;
     border-radius: 12px;
-    width: 90%;
+    width: 100%;
     max-width: 500px;
     max-height: 80vh;
     overflow-y: auto;
@@ -323,6 +412,8 @@
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    height: 100%;
+    max-height: 100vh;
   }
   
   .messages-container {
@@ -330,6 +421,8 @@
     padding: 20px;
     overflow-y: auto;
     background: #fafafa;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
   }
   
   .chat-locked {
@@ -344,17 +437,25 @@
     justify-content: center;
     align-items: center;
     z-index: 100;
+    padding: 20px;
   }
   
   .chat-locked h3 {
     color: #ff4757;
     margin-bottom: 10px;
+    text-align: center;
   }
   
   .message {
     display: flex;
     margin-bottom: 20px;
     max-width: 80%;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   
   .message.other {
@@ -392,6 +493,7 @@
     object-fit: cover;
     margin: 0 10px;
     flex-shrink: 0;
+    cursor: pointer;
   }
   
   .message-content {
@@ -453,6 +555,26 @@
     word-break: break-word;
   }
   
+  .edited-badge {
+    font-size: 10px;
+    color: #888;
+    margin-top: 5px;
+    font-style: italic;
+  }
+  
+  .message-image {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  
+  .message-image:hover {
+    transform: scale(1.02);
+  }
+  
   .delete-btn {
     position: absolute;
     left: -25px;
@@ -467,6 +589,7 @@
     cursor: pointer;
     font-size: 12px;
     display: none;
+    z-index: 10;
   }
   
   .message:hover .delete-btn {
@@ -479,6 +602,7 @@
     border-top: 1px solid var(--border);
     background: var(--white);
     position: relative;
+    flex-shrink: 0;
   }
   
   .chat-locked .input-area {
@@ -489,6 +613,7 @@
   .message-input-row {
     display: flex;
     gap: 10px;
+    align-items: center;
   }
   
   #message-input {
@@ -500,6 +625,8 @@
     resize: none;
     height: 60px;
     font-family: inherit;
+    min-height: 40px;
+    max-height: 120px;
   }
   
   #message-input:disabled {
@@ -512,16 +639,26 @@
     border-color: var(--primary);
   }
   
+  .input-buttons {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  
   #send-btn {
     background: var(--primary);
     color: white;
     border: none;
-    padding: 0 25px;
+    padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
     transition: background 0.3s;
     flex-shrink: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   #send-btn:disabled {
@@ -531,6 +668,27 @@
   
   #send-btn:hover:not(:disabled) {
     background: var(--primary-light);
+  }
+  
+  #image-upload-chat {
+    background: #f8f9fa;
+    color: var(--text);
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 20px;
+    transition: background 0.3s;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  #image-upload-chat:hover {
+    background: #e9ecef;
   }
   
   .status {
@@ -543,6 +701,7 @@
     justify-content: center;
     gap: 10px;
     flex-wrap: wrap;
+    flex-shrink: 0;
   }
   
   .chat-status {
@@ -588,18 +747,110 @@
   }
   
   /* التعديل للجوال */
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     .chat-layout {
       grid-template-columns: 1fr;
+      height: calc(100vh - 20px);
+      gap: 10px;
     }
     
     .sidebar {
       display: none;
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      max-width: 300px;
+      z-index: 1001;
+      border-radius: 0;
+    }
+    
+    .sidebar.active {
+      display: block;
+      animation: slideInRight 0.3s ease;
+    }
+    
+    @keyframes slideInRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    
+    .sidebar-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 1002;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .message {
       max-width: 90%;
     }
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      padding: 10px;
+    }
+    
+    .chat-area {
+      border-radius: 8px;
+    }
+    
+    .messages-container {
+      padding: 15px;
+    }
+    
+    .input-area {
+      padding: 15px;
+    }
+  }
+  
+  /* نافذة عرض الصورة */
+  .image-viewer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+    padding: 20px;
+  }
+  
+  .image-viewer img {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 8px;
+  }
+  
+  .close-viewer {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>
 </head>
@@ -608,12 +859,31 @@
 <!-- شاشة تسجيل الدخول -->
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
-    <h2>Welecome to Discond</h2>
-    <input type="text" id="userName" class="login-input" placeholder="اسم المستخدم" maxlength="20">
-    <input type="text" id="userAvatar" class="login-input" placeholder="رابط الصورة (اختياري)">
-    <p style="color: var(--text-light); font-size: 14px; margin-bottom: 20px;">يمكنك ترك رابط الصورة فارغاً</p>
+    <h2>مرحباً بك في Discond</h2>
     
-    <button id="loginBtn" class="login-btn">ابدأ الدردشة</button>
+    <!-- زر تسجيل الدخول بـ Google -->
+    <div id="g_id_onload"
+         data-client_id="1009347423340-movq119nqjkv18b3eus1p63ebs587daj.apps.googleusercontent.com"
+         data-context="signin"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+    
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="filled_blue"
+         data-text="signin_with"
+         data-shape="pill"
+         data-logo_alignment="left"
+         data-width="350">
+    </div>
+    
+    <!-- مؤشر التحميل -->
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+    </div>
+    
   </div>
 </div>
 
@@ -628,6 +898,12 @@
       <button id="commandCancelBtn" class="command-btn command-cancel">إلغاء</button>
     </div>
   </div>
+</div>
+
+<!-- نافذة عرض الصورة -->
+<div id="imageViewer" class="image-viewer" style="display: none;">
+  <img id="viewerImage" src="" alt="صورة">
+  <button id="closeViewer" class="close-viewer">✕</button>
 </div>
 
 <!-- الشات الرئيسي -->
@@ -650,7 +926,11 @@
       <div class="input-area">
         <div class="message-input-row">
           <textarea id="message-input" placeholder="اكتب رسالتك هنا..."></textarea>
-          <button id="send-btn">إرسال</button>
+          <div class="input-buttons">
+            <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+            <button id="image-upload-chat" title="إرسال صورة">📷</button>
+            <button id="send-btn">إرسال</button>
+          </div>
         </div>
       </div>
       
@@ -661,17 +941,19 @@
     </div>
     
     <!-- الشريط الجانبي -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
       <div class="user-profile">
         <img id="profileAvatar" class="user-avatar" src="https://ui-avatars.com/api/?name=مستخدم&background=6d8ed1&color=fff" alt="صورة الملف">
         <div class="user-name" id="profileName">
           <span id="adminBadge" class="admin-badge" style="display: none;">إدمن</span>
           اسم المستخدم
         </div>
-        <div style="color: var(--text-light); font-size: 14px; margin-bottom: 10px;">مستخدم نشط</div>
-        <div style="color: var(--primary); font-size: 12px; background: #e8f0fe; padding: 5px 10px; border-radius: 15px;">
+        <div style="color: var(--text-light); font-size: 14px; margin-bottom: 10px;" id="userEmail">مستخدم نشط</div>
+        <div style="color: var(--primary); font-size: 12px; background: #e8f0fe; padding: 5px 10px; border-radius: 15px; margin-bottom: 10px;">
           ID: <span id="userIdText">---</span>
         </div>
+        
+        <button id="logoutBtn" class="logout-btn">تسجيل الخروج</button>
       </div>
       
       <!-- أدوات الإدمن -->
@@ -716,12 +998,16 @@
         </div>
       </div>
     </div>
+    
+    <!-- زر تبديل الشريط الجانبي للجوال -->
+    <button id="sidebarToggle" class="sidebar-toggle" style="display: none;">☰</button>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-  import { getDatabase, ref, push, onChildAdded, onValue, set, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+  import { getDatabase, ref, push, onChildAdded, onValue, set, remove, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
   // إعداد Firebase
   const firebaseConfig = {
@@ -737,6 +1023,7 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+  const storage = getStorage(app);
 
   // مراجع قاعدة البيانات
   const messagesRef = ref(db, 'messages');
@@ -747,13 +1034,12 @@
   // العناصر في الصفحة
   const loginScreen = document.getElementById('loginScreen');
   const mainApp = document.getElementById('mainApp');
-  const loginBtn = document.getElementById('loginBtn');
-  const userNameInput = document.getElementById('userName');
-  const userAvatarInput = document.getElementById('userAvatar');
+  const loadingDiv = document.getElementById('loading');
   const profileName = document.getElementById('profileName');
   const profileAvatar = document.getElementById('profileAvatar');
   const adminBadge = document.getElementById('adminBadge');
   const userIdText = document.getElementById('userIdText');
+  const userEmail = document.getElementById('userEmail');
   const messagesContainer = document.getElementById('messagesContainer');
   const messageInput = document.getElementById('message-input');
   const sendBtn = document.getElementById('send-btn');
@@ -762,6 +1048,14 @@
   const chatLocked = document.getElementById('chatLocked');
   const lockReason = document.getElementById('lockReason');
   const lockTime = document.getElementById('lockTime');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const imageFileInput = document.getElementById('imageFileInput');
+  const imageUploadBtn = document.getElementById('image-upload-chat');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const imageViewer = document.getElementById('imageViewer');
+  const viewerImage = document.getElementById('viewerImage');
+  const closeViewer = document.getElementById('closeViewer');
   
   // أدوات الإدمن
   const adminTools = document.getElementById('adminTools');
@@ -779,23 +1073,16 @@
   const commandUsersList = document.getElementById('commandUsersList');
   const commandCancelBtn = document.getElementById('commandCancelBtn');
 
-  // دالة لإنشاء ID قصير
-  function generateShortId() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < 8; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  }
-
   // بيانات المستخدم الحالي
   let currentUser = {
     name: '',
+    email: '',
     avatar: '',
     userId: '',
+    googleId: '',
     shortId: '',
-    isAdmin: false
+    isAdmin: false,
+    isGuest: false
   };
 
   // متغيرات التحكم
@@ -803,6 +1090,19 @@
   let mutedUsers = {};
   let messageCountValue = 0;
   let currentCommand = '';
+  let editingMessageId = null;
+
+  // منع التمرير الأفقي
+  window.addEventListener('scroll', function(e) {
+    if (window.innerWidth <= 1024) {
+      window.scrollTo(0, 0);
+    }
+  });
+
+  // منع الزوم على الجوال
+  document.addEventListener('gesturestart', function(e) {
+    e.preventDefault();
+  });
 
   // عرض إشعار
   function showNotification(message, type = 'info') {
@@ -817,30 +1117,116 @@
     }, 3000);
   }
 
-  // تسجيل الدخول
-  loginBtn.addEventListener('click', async () => {
-    const name = userNameInput.value.trim();
-    const avatar = userAvatarInput.value.trim();
-    
-    if (!name) {
-      showNotification('الرجاء إدخال اسم المستخدم', 'error');
-      return;
+  // عرض/إخفاء التحميل
+  function showLoading(show) {
+    if (show) {
+      loadingDiv.classList.add('active');
+    } else {
+      loadingDiv.classList.remove('active');
     }
-    
-    // إنشاء معرف فريد قصير للمستخدم
-    currentUser.userId = 'user_' + Date.now();
-    currentUser.shortId = generateShortId();
-    currentUser.name = name;
-    currentUser.avatar = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6d8ed1&color=fff`;
-    currentUser.isAdmin = false;
-    
+  }
+
+  // دالة لإنشاء ID قصير
+  function generateShortId() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  // معالجة استجابة Google
+  async function handleCredentialResponse(response) {
     try {
-      // حفظ بيانات المستخدم في Firebase
+      showLoading(true);
+      
+      const token = response.credential;
+      
+      // فك تشفير بيانات JWT
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const data = JSON.parse(atob(base64));
+      
+      // التحقق من صلاحية التوكن
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (data.exp && data.exp < currentTime) {
+        showNotification('انتهت صلاحية جلسة الدخول');
+        showLoading(false);
+        return;
+      }
+      
+      // حفظ بيانات المستخدم
+      currentUser.name = data.name;
+      currentUser.email = data.email;
+      currentUser.avatar = data.picture;
+      currentUser.googleId = data.sub;
+      currentUser.isGuest = false;
+      
+      // التحقق إذا كان المستخدم موجود مسبقاً
+      const usersSnapshot = await new Promise((resolve) => {
+        onValue(usersRef, (snapshot) => {
+          resolve(snapshot);
+        }, { onlyOnce: true });
+      });
+      
+      let existingUser = null;
+      if (usersSnapshot.exists()) {
+        const users = usersSnapshot.val();
+        for (const userId in users) {
+          const user = users[userId];
+          if (user.googleId === currentUser.googleId) {
+            existingUser = { id: userId, ...user };
+            break;
+          }
+        }
+      }
+      
+      if (existingUser) {
+        // استعادة بيانات المستخدم الحالية
+        currentUser.userId = existingUser.id;
+        currentUser.shortId = existingUser.shortId;
+        currentUser.isAdmin = existingUser.isAdmin || false;
+      } else {
+        // إنشاء مستخدم جديد
+        currentUser.userId = 'google_' + currentUser.googleId;
+        currentUser.shortId = generateShortId();
+        currentUser.isAdmin = false;
+      }
+      
+      // حفظ الجلسة في localStorage
+      localStorage.setItem('discond_user', JSON.stringify({
+        name: currentUser.name,
+        email: currentUser.email,
+        avatar: currentUser.avatar,
+        googleId: currentUser.googleId,
+        userId: currentUser.userId,
+        shortId: currentUser.shortId,
+        isAdmin: currentUser.isAdmin,
+        isGuest: false
+      }));
+      
+      // تسجيل الدخول
+      await loginUser();
+      
+    } catch (error) {
+      console.error('خطأ في تسجيل الدخول بـ Google:', error);
+      showNotification('حدث خطأ في تسجيل الدخول', 'error');
+      showLoading(false);
+    }
+  }
+
+  // تسجيل الدخول للمستخدم
+  async function loginUser() {
+    try {
+      // حفظ/تحديث بيانات المستخدم في Firebase
       await set(ref(db, `users/${currentUser.userId}`), {
         name: currentUser.name,
+        email: currentUser.email,
+        googleId: currentUser.googleId,
         shortId: currentUser.shortId,
         avatar: currentUser.avatar,
-        isAdmin: false,
+        isAdmin: currentUser.isAdmin,
         lastSeen: serverTimestamp(),
         joinedAt: serverTimestamp()
       });
@@ -848,11 +1234,18 @@
       // تحديث واجهة المستخدم
       profileName.textContent = currentUser.name;
       profileAvatar.src = currentUser.avatar;
+      userEmail.textContent = currentUser.email;
       userIdText.textContent = currentUser.shortId;
       
       // إخفاء شاشة التسجيل وإظهار الشات
       loginScreen.style.display = 'none';
       mainApp.style.display = 'block';
+      
+      // إخفاء الشريط الجانبي على الجوال
+      if (window.innerWidth <= 1024) {
+        sidebar.style.display = 'none';
+        sidebarToggle.style.display = 'flex';
+      }
       
       // التركيز على حقل الرسالة
       messageInput.focus();
@@ -864,11 +1257,119 @@
       // مراقبة المستخدمين المكتومين
       monitorMutedUsers();
       
+      showNotification(`مرحباً ${currentUser.name}!`, 'success');
+      
     } catch (error) {
-      console.error('خطأ في التسجيل:', error);
-      showNotification('حدث خطأ في التسجيل', 'error');
+      console.error('خطأ في حفظ بيانات المستخدم:', error);
+      showNotification('حدث خطأ في حفظ بيانات المستخدم', 'error');
+    } finally {
+      showLoading(false);
     }
-  });
+  }
+
+  // تسجيل الخروج
+  async function logout() {
+    if (confirm('هل تريد تسجيل الخروج؟')) {
+      try {
+        // مسح بيانات الجلسة
+        localStorage.removeItem('discond_user');
+        
+        // إعادة تعيين Google Sign-In إذا كان مستخدم Google
+        if (currentUser.googleId && window.google && window.google.accounts) {
+          google.accounts.id.revoke(currentUser.email, done => {
+            console.log('تم تسجيل الخروج من Google');
+          });
+        }
+        
+        // إعادة تعيين بيانات المستخدم
+        currentUser = {
+          name: '',
+          email: '',
+          avatar: '',
+          userId: '',
+          googleId: '',
+          shortId: '',
+          isAdmin: false,
+          isGuest: false
+        };
+        
+        // إظهار شاشة تسجيل الدخول
+        mainApp.style.display = 'none';
+        loginScreen.style.display = 'flex';
+        
+        showNotification('تم تسجيل الخروج بنجاح', 'success');
+        
+      } catch (error) {
+        console.error('خطأ في تسجيل الخروج:', error);
+        showNotification('حدث خطأ في تسجيل الخروج', 'error');
+      }
+    }
+  }
+
+  // التحقق من وجود جلسة سابقة
+  async function checkExistingSession() {
+    const savedUser = localStorage.getItem('discond_user');
+    if (savedUser) {
+      try {
+        showLoading(true);
+        
+        const userData = JSON.parse(savedUser);
+        
+        // التحقق من صحة البيانات
+        if (userData.userId && userData.name && userData.avatar) {
+          // تعيين بيانات المستخدم
+          currentUser = userData;
+          
+          // تحديث واجهة المستخدم
+          profileName.textContent = currentUser.name;
+          profileAvatar.src = currentUser.avatar;
+          userEmail.textContent = currentUser.email;
+          userIdText.textContent = currentUser.shortId;
+          
+          // تحديث بيانات المستخدم في Firebase
+          await set(ref(db, `users/${currentUser.userId}`), {
+            name: currentUser.name,
+            email: currentUser.email,
+            googleId: currentUser.googleId || '',
+            shortId: currentUser.shortId,
+            avatar: currentUser.avatar,
+            isAdmin: currentUser.isAdmin || false,
+            lastSeen: serverTimestamp(),
+            joinedAt: serverTimestamp()
+          });
+          
+          // إخفاء شاشة التسجيل وإظهار الشات
+          loginScreen.style.display = 'none';
+          mainApp.style.display = 'block';
+          
+          // إخفاء الشريط الجانبي على الجوال
+          if (window.innerWidth <= 1024) {
+            sidebar.style.display = 'none';
+            sidebarToggle.style.display = 'flex';
+          }
+          
+          // التركيز على حقل الرسالة
+          messageInput.focus();
+          
+          // مراقبة صلاحية الإدمن
+          monitorAdminStatus();
+          // مراقبة إعدادات الدردشة
+          monitorChatSettings();
+          // مراقبة المستخدمين المكتومين
+          monitorMutedUsers();
+          
+          showNotification(`مرحباً بعودتك ${currentUser.name}!`, 'success');
+        } else {
+          localStorage.removeItem('discond_user');
+        }
+      } catch (error) {
+        console.error('خطأ في استعادة الجلسة:', error);
+        localStorage.removeItem('discond_user');
+      } finally {
+        showLoading(false);
+      }
+    }
+  }
 
   // مراقبة صلاحية الإدمن
   function monitorAdminStatus() {
@@ -878,6 +1379,11 @@
       if (snapshot.exists()) {
         const isAdmin = snapshot.val();
         currentUser.isAdmin = isAdmin;
+        
+        // تحديث localStorage
+        const savedUser = JSON.parse(localStorage.getItem('discond_user') || '{}');
+        savedUser.isAdmin = isAdmin;
+        localStorage.setItem('discond_user', JSON.stringify(savedUser));
         
         if (isAdmin) {
           adminBadge.style.display = 'inline-block';
@@ -901,9 +1407,6 @@
         // التحقق من حالة القفل
         if (settings.isLocked) {
           chatLocked.style.display = 'flex';
-          messageInput.disabled = true;
-          sendBtn.disabled = true;
-          
           lockReason.textContent = settings.lockReason || 'الدردشة مغلقة مؤقتاً من قبل الإدمن';
           
           if (settings.lockedUntil) {
@@ -928,10 +1431,11 @@
           }
         } else {
           chatLocked.style.display = 'none';
-          messageInput.disabled = false;
-          sendBtn.disabled = false;
           chatLockedUntil = null;
         }
+        
+        // تحديث حالة حقل الإدخال
+        updateInputField(settings.isLocked);
       } else {
         // إذا لم توجد إعدادات، إنشاء إعدادات افتراضية
         set(chatSettingsRef, {
@@ -943,6 +1447,25 @@
         });
       }
     });
+  }
+
+  // تحديث حقل الإدخال بناءً على حالة القفل
+  function updateInputField(isLocked) {
+    if (isLocked) {
+      if (!currentUser.isAdmin) {
+        messageInput.disabled = true;
+        sendBtn.disabled = true;
+        messageInput.placeholder = 'الدردشة مغلقة مؤقتاً...';
+      } else {
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        messageInput.placeholder = 'أنت إدمن، يمكنك الكتابة...';
+      }
+    } else {
+      messageInput.disabled = false;
+      sendBtn.disabled = false;
+      messageInput.placeholder = 'اكتب رسالتك هنا...';
+    }
   }
 
   // مراقبة المستخدمين المكتومين
@@ -985,6 +1508,7 @@
             shortId: user.shortId || 'N/A',
             name: user.name,
             avatar: user.avatar,
+            email: user.email || '',
             isAdmin: user.isAdmin || false
           });
         }
@@ -999,8 +1523,8 @@
             <img src="${user.avatar}" class="command-user-avatar" alt="${user.name}"
                  onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=6d8ed1&color=fff'">
             <div class="command-user-info">
-              <div class="command-user-name">${user.name} (${user.shortId})</div>
-              <div class="command-user-id">ID: ${user.id}</div>
+              <div class="command-user-name">${user.name} (${user.shortId}) ${user.isAdmin ? '👑' : ''}</div>
+              <div class="command-user-id">${user.email || 'لا يوجد بريد'}</div>
             </div>
           `;
           
@@ -1204,6 +1728,14 @@
           // ترقية المستخدم إلى إدمن
           await set(ref(db, `users/${targetUserId}/isAdmin`), true);
           
+          // تحديث بيانات المستخدم في localStorage إذا كان هو نفسه
+          if (targetUserId === currentUser.userId) {
+            const savedUser = JSON.parse(localStorage.getItem('discond_user') || '{}');
+            savedUser.isAdmin = true;
+            localStorage.setItem('discond_user', JSON.stringify(savedUser));
+            currentUser.isAdmin = true;
+          }
+          
           await push(messagesRef, {
             userId: 'system',
             userName: 'النظام',
@@ -1225,6 +1757,14 @@
           // إزالة صلاحيات الإدمن
           await set(ref(db, `users/${targetUserId}/isAdmin`), false);
           
+          // تحديث بيانات المستخدم في localStorage إذا كان هو نفسه
+          if (targetUserId === currentUser.userId) {
+            const savedUser = JSON.parse(localStorage.getItem('discond_user') || '{}');
+            savedUser.isAdmin = false;
+            localStorage.setItem('discond_user', JSON.stringify(savedUser));
+            currentUser.isAdmin = false;
+          }
+          
           await push(messagesRef, {
             userId: 'system',
             userName: 'النظام',
@@ -1244,27 +1784,146 @@
     }
   }
 
+  // رفع صورة إلى Firebase Storage
+  async function uploadImage(file) {
+    try {
+      // التحقق من حجم الصورة
+      if (file.size > 5 * 1024 * 1024) { // 5MB
+        showNotification('حجم الصورة كبير جداً. الحد الأقصى 5MB', 'error');
+        return null;
+      }
+      
+      // التحقق من نوع الصورة
+      if (!file.type.startsWith('image/')) {
+        showNotification('الملف المختار ليس صورة', 'error');
+        return null;
+      }
+      
+      showLoading(true);
+      
+      // إنشاء اسم فريد للملف
+      const timestamp = Date.now();
+      const randomString = Math.random().toString(36).substring(7);
+      const fileName = `chat_images/${currentUser.userId}_${timestamp}_${randomString}`;
+      
+      // رفع الصورة إلى Storage
+      const fileRef = storageRef(storage, fileName);
+      await uploadBytes(fileRef, file);
+      
+      // الحصول على رابط التحميل
+      const downloadURL = await getDownloadURL(fileRef);
+      
+      showLoading(false);
+      return downloadURL;
+      
+    } catch (error) {
+      console.error('خطأ في رفع الصورة:', error);
+      showLoading(false);
+      showNotification('حدث خطأ في رفع الصورة', 'error');
+      return null;
+    }
+  }
+
+  // إرسال رسالة نصية
+  async function sendTextMessage(text) {
+    try {
+      // التحقق من كتم المستخدم
+      if (mutedUsers[currentUser.userId]) {
+        const muteUntil = new Date(mutedUsers[currentUser.userId].mutedUntil);
+        const now = new Date();
+        
+        if (muteUntil > now) {
+          const diff = Math.ceil((muteUntil - now) / (1000 * 60));
+          showNotification(`أنت مكتوم لمدة ${diff} دقيقة أخرى`, 'error');
+          return false;
+        } else {
+          await remove(ref(db, `mutedUsers/${currentUser.userId}`));
+        }
+      }
+      
+      // إذا كان المستخدم يعدل رسالة
+      if (editingMessageId) {
+        await update(ref(db, `messages/${editingMessageId}`), {
+          text: text,
+          edited: true,
+          editedAt: serverTimestamp()
+        });
+        
+        editingMessageId = null;
+        messageInput.placeholder = 'اكتب رسالتك هنا...';
+        showNotification('تم تعديل الرسالة', 'success');
+        return true;
+      }
+      
+      // إضافة الرسالة إلى Firebase
+      await push(messagesRef, {
+        userId: currentUser.userId,
+        shortId: currentUser.shortId,
+        userName: currentUser.name,
+        userAvatar: currentUser.avatar,
+        text: text,
+        timestamp: serverTimestamp(),
+        isAdmin: currentUser.isAdmin,
+        email: currentUser.email
+      });
+      
+      return true;
+      
+    } catch (error) {
+      console.error('خطأ في إرسال الرسالة:', error);
+      showNotification('حدث خطأ في إرسال الرسالة', 'error');
+      return false;
+    }
+  }
+
+  // إرسال رسالة مع صورة
+  async function sendImageMessage(imageUrl, caption = '') {
+    try {
+      // التحقق من كتم المستخدم
+      if (mutedUsers[currentUser.userId]) {
+        const muteUntil = new Date(mutedUsers[currentUser.userId].mutedUntil);
+        const now = new Date();
+        
+        if (muteUntil > now) {
+          const diff = Math.ceil((muteUntil - now) / (1000 * 60));
+          showNotification(`أنت مكتوم لمدة ${diff} دقيقة أخرى`, 'error');
+          return false;
+        } else {
+          await remove(ref(db, `mutedUsers/${currentUser.userId}`));
+        }
+      }
+      
+      // إضافة الرسالة إلى Firebase
+      await push(messagesRef, {
+        userId: currentUser.userId,
+        shortId: currentUser.shortId,
+        userName: currentUser.name,
+        userAvatar: currentUser.avatar,
+        text: caption,
+        imageUrl: imageUrl,
+        timestamp: serverTimestamp(),
+        isAdmin: currentUser.isAdmin,
+        email: currentUser.email
+      });
+      
+      return true;
+      
+    } catch (error) {
+      console.error('خطأ في إرسال الصورة:', error);
+      showNotification('حدث خطأ في إرسال الصورة', 'error');
+      return false;
+    }
+  }
+
   // إرسال رسالة
   async function sendMessage() {
     const text = messageInput.value.trim();
+    const file = imageFileInput.files[0];
     
-    if (!text) {
-      showNotification('الرجاء كتابة رسالة', 'error');
+    // إذا لم يكن هناك نص ولا صورة
+    if (!text && !file) {
+      showNotification('الرجاء كتابة رسالة أو اختيار صورة', 'error');
       return;
-    }
-    
-    // التحقق من كتم المستخدم
-    if (mutedUsers[currentUser.userId]) {
-      const muteUntil = new Date(mutedUsers[currentUser.userId].mutedUntil);
-      const now = new Date();
-      
-      if (muteUntil > now) {
-        const diff = Math.ceil((muteUntil - now) / (1000 * 60));
-        showNotification(`أنت مكتوم لمدة ${diff} دقيقة أخرى`, 'error');
-        return;
-      } else {
-        await remove(ref(db, `mutedUsers/${currentUser.userId}`));
-      }
     }
     
     // التحقق من قفل الدردشة
@@ -1279,20 +1938,25 @@
     }
     
     try {
-      // إضافة الرسالة إلى Firebase
-      await push(messagesRef, {
-        userId: currentUser.userId,
-        shortId: currentUser.shortId,
-        userName: currentUser.name,
-        userAvatar: currentUser.avatar,
-        text: text,
-        timestamp: serverTimestamp(),
-        isAdmin: currentUser.isAdmin
-      });
+      let success = false;
       
-      // مسح حقل الإدخال
-      messageInput.value = '';
-      messageInput.focus();
+      // إذا كان هناك صورة
+      if (file) {
+        const imageUrl = await uploadImage(file);
+        if (imageUrl) {
+          success = await sendImageMessage(imageUrl, text);
+        }
+      } else {
+        // إذا كان نص فقط
+        success = await sendTextMessage(text);
+      }
+      
+      if (success) {
+        // مسح حقل الإدخال وملف الصورة
+        messageInput.value = '';
+        imageFileInput.value = '';
+        messageInput.focus();
+      }
       
     } catch (error) {
       console.error('خطأ في إرسال الرسالة:', error);
@@ -1300,14 +1964,48 @@
     }
   }
 
+  // دالة لتعديل الرسالة
+  async function editMessage(messageId, currentText) {
+    editingMessageId = messageId;
+    messageInput.value = currentText;
+    messageInput.focus();
+    messageInput.placeholder = 'تعديل الرسالة...';
+    showNotification('يمكنك الآن تعديل الرسالة', 'info');
+  }
+
   // إرسال بالزر
   sendBtn.addEventListener('click', sendMessage);
 
   // إرسال بالإنتر
-  messageInput.addEventListener('keypress', (e) => {
+  messageInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+    }
+  });
+
+  // اختيار صورة
+  imageUploadBtn.addEventListener('click', () => {
+    imageFileInput.click();
+  });
+
+  // عرض معاينة الصورة عند اختيارها
+  imageFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        showNotification('حجم الصورة كبير جداً. الحد الأقصى 5MB', 'error');
+        imageFileInput.value = '';
+        return;
+      }
+      
+      if (!file.type.startsWith('image/')) {
+        showNotification('الملف المختار ليس صورة', 'error');
+        imageFileInput.value = '';
+        return;
+      }
+      
+      showNotification('تم اختيار صورة، اضغط إرسال لإرسالها', 'info');
     }
   });
 
@@ -1356,6 +2054,15 @@
       }
     }
     
+    // تنسيق وقت التعديل
+    let editedText = '';
+    if (message.edited && message.editedAt) {
+      const editedTime = new Date(message.editedAt);
+      if (!isNaN(editedTime.getTime())) {
+        editedText = `<div class="edited-badge">تم التعديل ${editedTime.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</div>`;
+      }
+    }
+    
     // إذا كانت رسالة النظام
     if (message.userId === 'system') {
       messageDiv.innerHTML = `
@@ -1367,6 +2074,12 @@
       // استخدام الـ ID القصير في العرض
       const displayName = `${message.userName} (${message.shortId || 'ID'})${message.isAdmin ? ' 👑' : ''}`;
       
+      // تحضير محتوى الصورة
+      let imageContent = '';
+      if (message.imageUrl) {
+        imageContent = `<img src="${message.imageUrl}" class="message-image" onclick="viewImage('${message.imageUrl}')" alt="صورة">`;
+      }
+      
       messageDiv.innerHTML = `
         <img src="${message.userAvatar}" class="message-avatar" alt="${message.userName}"
              onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(message.userName)}&background=6d8ed1&color=fff'">
@@ -1375,10 +2088,32 @@
             <span class="message-name">${displayName}</span>
             <span class="message-time">${timeString}</span>
           </div>
-          <div class="message-text">${message.text}</div>
+          <div class="message-text">${message.text || ''}</div>
+          ${imageContent}
+          ${editedText}
         </div>
         ${currentUser.isAdmin && message.userId !== 'system' ? `<button class="delete-btn" onclick="deleteMessage('${messageId}')">×</button>` : ''}
       `;
+      
+      // إضافة حدث النقر المزدوج لتعديل الرسالة
+      if (message.userId === currentUser.userId) {
+        let clickTimer = 0;
+        messageDiv.addEventListener('click', (e) => {
+          if (e.target.classList.contains('delete-btn') || e.target.classList.contains('message-image')) {
+            return;
+          }
+          
+          if (clickTimer === 0) {
+            clickTimer = setTimeout(() => {
+              clickTimer = 0;
+            }, 300);
+          } else {
+            clearTimeout(clickTimer);
+            clickTimer = 0;
+            editMessage(messageId, message.text || '');
+          }
+        });
+      }
     }
     
     // إزالة الرسائل القديمة إذا تجاوز العدد 200
@@ -1402,6 +2137,29 @@
       showNotification('تم حذف الرسالة', 'success');
     }
   };
+
+  // دالة عرض الصورة
+  window.viewImage = function(imageUrl) {
+    viewerImage.src = imageUrl;
+    imageViewer.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
+
+  // إغلاق نافذة عرض الصورة
+  closeViewer.addEventListener('click', () => {
+    imageViewer.style.display = 'none';
+    viewerImage.src = '';
+    document.body.style.overflow = 'auto';
+  });
+
+  // إغلاق النافذة بالضغط خارج الصورة
+  imageViewer.addEventListener('click', (e) => {
+    if (e.target === imageViewer) {
+      imageViewer.style.display = 'none';
+      viewerImage.src = '';
+      document.body.style.overflow = 'auto';
+    }
+  });
 
   // تحديث عدد الرسائل
   onValue(messagesRef, (snapshot) => {
@@ -1428,6 +2186,44 @@
     onlineStatus.textContent = '✗ غير متصل';
     onlineStatus.style.color = '#ff4757';
   });
+
+  // تبديل الشريط الجانبي على الجوال
+  sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
+  });
+
+  // إغلاق الشريط الجانبي عند الضغط خارجها
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 1024 && 
+        sidebar.classList.contains('active') && 
+        !sidebar.contains(e.target) && 
+        e.target !== sidebarToggle) {
+      sidebar.classList.remove('active');
+    }
+  });
+
+  // تحجيم الشريط الجانبي تلقائياً
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 1024) {
+      sidebar.style.display = 'block';
+      sidebar.classList.remove('active');
+      sidebarToggle.style.display = 'none';
+    } else {
+      sidebar.style.display = 'none';
+      sidebarToggle.style.display = 'flex';
+    }
+  });
+
+  // تفعيل زر تسجيل الخروج
+  logoutBtn.addEventListener('click', logout);
+
+  // التحقق من الجلسة عند تحميل الصفحة
+  window.addEventListener('DOMContentLoaded', () => {
+    checkExistingSession();
+  });
+
+  // جعل الدوال متاحة عالمياً لـ Google
+  window.handleCredentialResponse = handleCredentialResponse;
 
 </script>
 
