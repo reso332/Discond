@@ -477,6 +477,38 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     height: 100%;
     max-height: 100vh;
+    position: relative;
+  }
+  
+  .chat-header {
+    padding: 15px 20px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .chat-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary);
+  }
+  
+  .chat-menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--text);
+    padding: 5px;
+    display: none;
+  }
+  
+  @media (max-width: 1024px) {
+    .chat-menu-btn {
+      display: block;
+    }
   }
   
   .messages-container {
@@ -488,13 +520,29 @@
     scroll-behavior: smooth;
   }
   
+  .typing-indicator {
+    padding: 10px 20px;
+    color: var(--text-light);
+    font-size: 14px;
+    font-style: italic;
+    height: 20px;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+  }
+  
+  .typing-indicator.hidden {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+  }
+  
   .chat-locked {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -538,11 +586,16 @@
     border-right: 3px solid #4CAF50;
     max-width: 100%;
     justify-content: center;
+    background: #e8f5e9;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px auto;
+    width: 90%;
   }
   
   .message.system .message-content {
-    background: #e8f5e9;
-    color: #2e7d32;
+    background: transparent;
+    padding: 0;
   }
   
   .message.muted {
@@ -568,6 +621,7 @@
     overflow-wrap: break-word;
     word-wrap: break-word;
     word-break: break-word;
+    min-width: 100px;
   }
   
   .message.self .message-content {
@@ -602,9 +656,10 @@
   }
   
   .message-time {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-light);
     flex-shrink: 0;
+    opacity: 0.8;
   }
   
   .message.self .message-time {
@@ -616,6 +671,7 @@
     overflow-wrap: break-word;
     word-wrap: break-word;
     word-break: break-word;
+    font-size: 15px;
   }
   
   .edited-badge {
@@ -661,22 +717,17 @@
   
   /* إدخال الرسالة */
   .input-area {
-    padding: 20px;
+    padding: 15px 20px;
     border-top: 1px solid var(--border);
     background: var(--white);
     position: relative;
     flex-shrink: 0;
   }
   
-  .chat-locked .input-area {
-    filter: blur(2px);
-    pointer-events: none;
-  }
-  
   .message-input-row {
     display: flex;
     gap: 10px;
-    align-items: center;
+    align-items: flex-end;
   }
   
   #message-input {
@@ -684,17 +735,19 @@
     padding: 12px 15px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 15px;
     resize: none;
-    height: 60px;
+    height: 50px;
     font-family: inherit;
-    min-height: 40px;
-    max-height: 120px;
+    min-height: 50px;
+    max-height: 100px;
+    line-height: 1.4;
   }
   
   #message-input:disabled {
     background: #f5f5f5;
     cursor: not-allowed;
+    opacity: 0.7;
   }
   
   #message-input:focus {
@@ -716,10 +769,10 @@
     padding: 12px 24px;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 15px;
     transition: background 0.3s;
     flex-shrink: 0;
-    height: 40px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -745,8 +798,8 @@
     font-size: 14px;
     transition: all 0.3s;
     flex-shrink: 0;
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -856,24 +909,19 @@
       to { transform: translateX(0); }
     }
     
-    .sidebar-toggle {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 1002;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
     .message {
       max-width: 90%;
+    }
+    
+    #message-input {
+      font-size: 16px;
+      height: 50px;
+      min-height: 50px;
+    }
+    
+    #send-btn {
+      font-size: 15px;
+      padding: 12px 20px;
     }
   }
   
@@ -891,7 +939,42 @@
     }
     
     .input-area {
-      padding: 15px;
+      padding: 12px 15px;
+    }
+    
+    .message-text {
+      font-size: 14px;
+    }
+    
+    .message-time {
+      font-size: 10px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .message {
+      max-width: 95%;
+    }
+    
+    .message-text {
+      font-size: 13px;
+    }
+    
+    #message-input {
+      font-size: 14px;
+      height: 45px;
+      min-height: 45px;
+    }
+    
+    #send-btn {
+      font-size: 14px;
+      padding: 10px 16px;
+      height: 45px;
+    }
+    
+    #image-upload-chat {
+      width: 45px;
+      height: 45px;
     }
   }
   
@@ -1003,13 +1086,22 @@
     <div class="chat-area">
       <!-- حالة قفل الدردشة -->
       <div id="chatLocked" class="chat-locked" style="display: none;">
-        <h3>الدردشة مغلقة مؤقتاً</h3>
+        <h3>تم قفل الدردشة من قبل الإدارة</h3>
         <p id="lockReason">سيتم فتح الدردشة قريباً...</p>
         <p id="lockTime" style="font-size: 12px; color: #666;"></p>
       </div>
       
+      <div class="chat-header">
+        <div class="chat-title">دردشة Discond</div>
+        <button id="chatMenuBtn" class="chat-menu-btn">☰</button>
+      </div>
+      
       <div id="messagesContainer" class="messages-container">
         <!-- الرسائل تظهر هنا -->
+      </div>
+      
+      <div id="typingIndicator" class="typing-indicator hidden">
+        <!-- مؤشر الكتابة يظهر هنا -->
       </div>
       
       <div class="input-area">
@@ -1087,9 +1179,6 @@
         </div>
       </div>
     </div>
-    
-    <!-- زر تبديل الشريط الجانبي للجوال -->
-    <button id="sidebarToggle" class="sidebar-toggle" style="display: none;">☰</button>
   </div>
 </div>
 
@@ -1119,6 +1208,7 @@
   const usersRef = ref(db, 'users');
   const chatSettingsRef = ref(db, 'settings/chat');
   const mutedUsersRef = ref(db, 'mutedUsers');
+  const typingRef = ref(db, 'typing');
 
   // العناصر في الصفحة
   const loginScreen = document.getElementById('loginScreen');
@@ -1144,10 +1234,11 @@
   const imageFileInput = document.getElementById('imageFileInput');
   const imageUploadBtn = document.getElementById('image-upload-chat');
   const sidebar = document.getElementById('sidebar');
-  const sidebarToggle = document.getElementById('sidebarToggle');
+  const chatMenuBtn = document.getElementById('chatMenuBtn');
   const imageViewer = document.getElementById('imageViewer');
   const viewerImage = document.getElementById('viewerImage');
   const closeViewer = document.getElementById('closeViewer');
+  const typingIndicator = document.getElementById('typingIndicator');
   
   // أدوات الإدمن
   const adminTools = document.getElementById('adminTools');
@@ -1183,6 +1274,8 @@
   let messageCountValue = 0;
   let currentCommand = '';
   let editingMessageId = null;
+  let typingTimeout = null;
+  let lastTypingUpdate = 0;
 
   // منع التمرير الأفقي
   window.addEventListener('scroll', function(e) {
@@ -1228,6 +1321,73 @@
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
+  }
+
+  // تحديث حالة الكتابة
+  async function updateTypingStatus(isTyping) {
+    if (!currentUser.userId) return;
+    
+    const now = Date.now();
+    if (isTyping && now - lastTypingUpdate < 1000) return;
+    
+    lastTypingUpdate = now;
+    
+    try {
+      if (isTyping) {
+        await set(ref(db, `typing/${currentUser.userId}`), {
+          name: currentUser.name,
+          userId: currentUser.userId,
+          timestamp: serverTimestamp()
+        });
+        
+        // إزالة حالة الكتابة بعد 3 ثواني
+        if (typingTimeout) clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+          remove(ref(db, `typing/${currentUser.userId}`));
+        }, 3000);
+      } else {
+        remove(ref(db, `typing/${currentUser.userId}`));
+        if (typingTimeout) clearTimeout(typingTimeout);
+      }
+    } catch (error) {
+      console.error('خطأ في تحديث حالة الكتابة:', error);
+    }
+  }
+
+  // مراقبة حالة الكتابة
+  function monitorTyping() {
+    onValue(typingRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const typingUsers = snapshot.val();
+        const typingArray = [];
+        
+        for (const userId in typingUsers) {
+          if (userId !== currentUser.userId) {
+            const user = typingUsers[userId];
+            const time = new Date(user.timestamp);
+            const now = new Date();
+            const diff = now - time;
+            
+            // إزالة إذا مر أكثر من 5 ثواني
+            if (diff < 5000) {
+              typingArray.push(user.name);
+            } else {
+              remove(ref(db, `typing/${userId}`));
+            }
+          }
+        }
+        
+        if (typingArray.length > 0) {
+          const names = typingArray.join(' و');
+          typingIndicator.textContent = `${names} يكتب...`;
+          typingIndicator.classList.remove('hidden');
+        } else {
+          typingIndicator.classList.add('hidden');
+        }
+      } else {
+        typingIndicator.classList.add('hidden');
+      }
+    });
   }
 
   // معالجة تسجيل الدخول كضيف
@@ -1367,7 +1527,6 @@
       // إخفاء الشريط الجانبي على الجوال
       if (window.innerWidth <= 1024) {
         sidebar.style.display = 'none';
-        sidebarToggle.style.display = 'flex';
       }
       
       // مسح حقول الإدخال
@@ -1385,6 +1544,8 @@
       monitorChatSettings();
       // مراقبة المستخدمين المكتومين
       monitorMutedUsers();
+      // مراقبة حالة الكتابة
+      monitorTyping();
       
       showNotification(`مرحباً ${currentUser.name}!`, 'success');
       
@@ -1402,6 +1563,9 @@
       try {
         // مسح بيانات الجلسة
         localStorage.removeItem('discond_user');
+        
+        // إزالة حالة الكتابة
+        await remove(ref(db, `typing/${currentUser.userId}`));
         
         // إعادة تعيين Google Sign-In إذا كان مستخدم Google
         if (currentUser.googleId && window.google && window.google.accounts) {
@@ -1475,7 +1639,6 @@
           // إخفاء الشريط الجانبي على الجوال
           if (window.innerWidth <= 1024) {
             sidebar.style.display = 'none';
-            sidebarToggle.style.display = 'flex';
           }
           
           // التركيز على حقل الرسالة
@@ -1489,6 +1652,8 @@
           monitorChatSettings();
           // مراقبة المستخدمين المكتومين
           monitorMutedUsers();
+          // مراقبة حالة الكتابة
+          monitorTyping();
           
           showNotification(`مرحباً بعودتك ${currentUser.name}!`, 'success');
         } else {
@@ -1538,8 +1703,20 @@
         
         // التحقق من حالة القفل
         if (settings.isLocked) {
-          chatLocked.style.display = 'flex';
-          lockReason.textContent = settings.lockReason || 'الدردشة مغلقة مؤقتاً من قبل الإدمن';
+          if (!currentUser.isAdmin) {
+            // الأعضاء العاديين يرون فقط رسالة النظام
+            chatLocked.style.display = 'flex';
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+            messageInput.placeholder = 'الدردشة مغلقة مؤقتاً...';
+            lockReason.textContent = 'تم قفل الدردشة من قبل الإدارة';
+          } else {
+            // الإدمن يستطيع الكتابة
+            chatLocked.style.display = 'none';
+            messageInput.disabled = false;
+            sendBtn.disabled = false;
+            messageInput.placeholder = 'أنت إدمن، يمكنك الكتابة...';
+          }
           
           if (settings.lockedUntil) {
             const lockDate = new Date(settings.lockedUntil);
@@ -1563,11 +1740,11 @@
           }
         } else {
           chatLocked.style.display = 'none';
+          messageInput.disabled = false;
+          sendBtn.disabled = false;
+          messageInput.placeholder = 'اكتب رسالتك هنا...';
           chatLockedUntil = null;
         }
-        
-        // تحديث حالة حقل الإدخال
-        updateInputField(settings.isLocked);
       } else {
         // إذا لم توجد إعدادات، إنشاء إعدادات افتراضية
         set(chatSettingsRef, {
@@ -1579,25 +1756,6 @@
         });
       }
     });
-  }
-
-  // تحديث حقل الإدخال بناءً على حالة القفل
-  function updateInputField(isLocked) {
-    if (isLocked) {
-      if (!currentUser.isAdmin) {
-        messageInput.disabled = true;
-        sendBtn.disabled = true;
-        messageInput.placeholder = 'الدردشة مغلقة مؤقتاً...';
-      } else {
-        messageInput.disabled = false;
-        sendBtn.disabled = false;
-        messageInput.placeholder = 'أنت إدمن، يمكنك الكتابة...';
-      }
-    } else {
-      messageInput.disabled = false;
-      sendBtn.disabled = false;
-      messageInput.placeholder = 'اكتب رسالتك هنا...';
-    }
   }
 
   // مراقبة المستخدمين المكتومين
@@ -1761,7 +1919,7 @@
           await set(chatSettingsRef, {
             isLocked: true,
             lockedBy: currentUser.shortId,
-            lockReason: 'الدردشة مقفولة من قبل الإدمن',
+            lockReason: 'تم قفل الدردشة من قبل الإدارة',
             lockedUntil: null,
             lockedAt: serverTimestamp()
           });
@@ -1770,7 +1928,7 @@
             userId: 'system',
             userName: 'النظام',
             userAvatar: 'https://cdn-icons-png.flaticon.com/512/1828/1828640.png',
-            text: `قام ${currentUser.name} (${currentUser.shortId}) بقفل الدردشة. فقط الإدمن يستطيع الكتابة الآن.`,
+            text: `قام ${currentUser.name} (${currentUser.shortId}) بقفل الدردشة.`,
             timestamp: serverTimestamp(),
             isSystem: true
           });
@@ -1973,6 +2131,12 @@
         }
       }
       
+      // التحقق من قفل الدردشة
+      if (chatLockedUntil && !currentUser.isAdmin) {
+        showNotification('الدردشة مغلقة مؤقتاً. فقط الإدمن يستطيع الكتابة.', 'error');
+        return false;
+      }
+      
       // إذا كان المستخدم يعدل رسالة
       if (editingMessageId) {
         await update(ref(db, `messages/${editingMessageId}`), {
@@ -2025,6 +2189,12 @@
         }
       }
       
+      // التحقق من قفل الدردشة
+      if (chatLockedUntil && !currentUser.isAdmin) {
+        showNotification('الدردشة مغلقة مؤقتاً. فقط الإدمن يستطيع الكتابة.', 'error');
+        return false;
+      }
+      
       // إضافة الرسالة إلى Firebase
       await push(messagesRef, {
         userId: currentUser.userId,
@@ -2058,17 +2228,6 @@
       return;
     }
     
-    // التحقق من قفل الدردشة
-    if (chatLockedUntil) {
-      const lockUntil = new Date(chatLockedUntil);
-      const now = new Date();
-      
-      if (lockUntil > now && !currentUser.isAdmin) {
-        showNotification('الدردشة مغلقة مؤقتاً. فقط الإدمن يستطيع الكتابة.', 'error');
-        return;
-      }
-    }
-    
     try {
       let success = false;
       
@@ -2088,6 +2247,9 @@
         messageInput.value = '';
         imageFileInput.value = '';
         messageInput.focus();
+        
+        // تحديث حالة الكتابة
+        updateTypingStatus(false);
       }
       
     } catch (error) {
@@ -2113,6 +2275,15 @@
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+    }
+  });
+
+  // تحديث حالة الكتابة عند الكتابة
+  messageInput.addEventListener('input', () => {
+    if (messageInput.value.trim().length > 0) {
+      updateTypingStatus(true);
+    } else {
+      updateTypingStatus(false);
     }
   });
 
@@ -2146,6 +2317,21 @@
       }
       
       showNotification('تم اختيار صورة، اضغط إرسال لإرسالها', 'info');
+    }
+  });
+
+  // زر القائمة للجوال
+  chatMenuBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
+  });
+
+  // إغلاق الشريط الجانبي عند الضغط خارجها
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 1024 && 
+        sidebar.classList.contains('active') && 
+        !sidebar.contains(e.target) && 
+        e.target !== chatMenuBtn) {
+      sidebar.classList.remove('active');
     }
   });
 
@@ -2207,7 +2393,7 @@
     if (message.userId === 'system') {
       messageDiv.innerHTML = `
         <div class="message-content">
-          <div class="message-text">${message.text}</div>
+          <div class="message-text" style="color: #2e7d32; font-weight: 500;">${message.text}</div>
         </div>
       `;
     } else {
@@ -2327,30 +2513,13 @@
     onlineStatus.style.color = '#ff4757';
   });
 
-  // تبديل الشريط الجانبي على الجوال
-  sidebarToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('active');
-  });
-
-  // إغلاق الشريط الجانبي عند الضغط خارجها
-  document.addEventListener('click', (e) => {
-    if (window.innerWidth <= 1024 && 
-        sidebar.classList.contains('active') && 
-        !sidebar.contains(e.target) && 
-        e.target !== sidebarToggle) {
-      sidebar.classList.remove('active');
-    }
-  });
-
   // تحجيم الشريط الجانبي تلقائياً
   window.addEventListener('resize', () => {
     if (window.innerWidth > 1024) {
       sidebar.style.display = 'block';
       sidebar.classList.remove('active');
-      sidebarToggle.style.display = 'none';
     } else {
       sidebar.style.display = 'none';
-      sidebarToggle.style.display = 'flex';
     }
   });
 
