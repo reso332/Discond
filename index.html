@@ -83,6 +83,13 @@
     font-weight: 500;
   }
   
+  .login-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
   .google-login-btn {
     width: 100%;
     padding: 14px 15px;
@@ -95,13 +102,32 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 20px;
     transition: all 0.3s;
   }
   
   .google-login-btn:hover {
     background: #f5f5f5;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .guest-login-btn {
+    width: 100%;
+    padding: 14px 15px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s;
+  }
+  
+  .guest-login-btn:hover {
+    background: var(--primary-light);
   }
   
   .google-icon {
@@ -130,6 +156,59 @@
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+  
+  /* نموذج تسجيل الدخول كضيف */
+  .guest-form {
+    display: none;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  
+  .guest-form.active {
+    display: block;
+  }
+  
+  .guest-form input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  
+  .guest-form input:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+  
+  .guest-form-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .guest-submit-btn {
+    flex: 1;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .guest-cancel-btn {
+    flex: 1;
+    background: #f8f9fa;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
   }
   
   /* زر اختيار الصور */
@@ -861,22 +940,26 @@
   <div class="login-box">
     <h2>مرحباً بك في Discond</h2>
     
-    <!-- زر تسجيل الدخول بـ Google -->
-    <div id="g_id_onload"
-         data-client_id="1009347423340-movq119nqjkv18b3eus1p63ebs587daj.apps.googleusercontent.com"
-         data-context="signin"
-         data-callback="handleCredentialResponse"
-         data-auto_prompt="false">
+    <div class="login-options">
+      <!-- زر تسجيل الدخول بـ Google -->
+      <div class="g_id_onload" data-client_id="1009347423340-movq119nqjkv18b3eus1p63ebs587daj.apps.googleusercontent.com" data-context="signin" data-callback="handleCredentialResponse" data-auto_prompt="false"></div>
+      
+      <div id="googleSignIn" class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_blue" data-text="signin_with" data-shape="pill" data-logo_alignment="left"></div>
+      
+      <!-- زر الدخول كضيف -->
+      <button id="guestLoginBtn" class="guest-login-btn">
+        👤 الدخول كضيف
+      </button>
     </div>
     
-    <div class="g_id_signin"
-         data-type="standard"
-         data-size="large"
-         data-theme="filled_blue"
-         data-text="signin_with"
-         data-shape="pill"
-         data-logo_alignment="left"
-         data-width="350">
+    <!-- نموذج تسجيل الدخول كضيف -->
+    <div id="guestForm" class="guest-form">
+      <input type="text" id="guestName" placeholder="اسم المستخدم" maxlength="20" required>
+      <input type="text" id="guestAvatar" placeholder="رابط صورة الملف (اختياري)">
+      <div class="guest-form-buttons">
+        <button id="guestSubmitBtn" class="guest-submit-btn">تسجيل الدخول</button>
+        <button id="guestCancelBtn" class="guest-cancel-btn">إلغاء</button>
+      </div>
     </div>
     
     <!-- مؤشر التحميل -->
@@ -1035,6 +1118,12 @@
   const loginScreen = document.getElementById('loginScreen');
   const mainApp = document.getElementById('mainApp');
   const loadingDiv = document.getElementById('loading');
+  const guestLoginBtn = document.getElementById('guestLoginBtn');
+  const guestForm = document.getElementById('guestForm');
+  const guestNameInput = document.getElementById('guestName');
+  const guestAvatarInput = document.getElementById('guestAvatar');
+  const guestSubmitBtn = document.getElementById('guestSubmitBtn');
+  const guestCancelBtn = document.getElementById('guestCancelBtn');
   const profileName = document.getElementById('profileName');
   const profileAvatar = document.getElementById('profileAvatar');
   const adminBadge = document.getElementById('adminBadge');
@@ -1121,8 +1210,12 @@
   function showLoading(show) {
     if (show) {
       loadingDiv.classList.add('active');
+      guestLoginBtn.disabled = true;
+      guestSubmitBtn.disabled = true;
     } else {
       loadingDiv.classList.remove('active');
+      guestLoginBtn.disabled = false;
+      guestSubmitBtn.disabled = false;
     }
   }
 
@@ -1134,6 +1227,55 @@
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
+  }
+
+  // إظهار نموذج الضيف
+  function showGuestForm() {
+    guestForm.classList.add('active');
+    guestNameInput.focus();
+  }
+
+  // إخفاء نموذج الضيف
+  function hideGuestForm() {
+    guestForm.classList.remove('active');
+    guestNameInput.value = '';
+    guestAvatarInput.value = '';
+  }
+
+  // معالجة تسجيل الدخول كضيف
+  async function handleGuestLogin() {
+    const name = guestNameInput.value.trim();
+    
+    if (!name) {
+      showNotification('الرجاء إدخال اسم المستخدم', 'error');
+      guestNameInput.focus();
+      return;
+    }
+    
+    showLoading(true);
+    
+    try {
+      // إنشاء بيانات المستخدم الضيف
+      currentUser.name = name;
+      currentUser.email = 'ضيف';
+      currentUser.avatar = guestAvatarInput.value.trim() || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6d8ed1&color=fff`;
+      currentUser.googleId = '';
+      currentUser.shortId = generateShortId();
+      currentUser.userId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      currentUser.isAdmin = false;
+      currentUser.isGuest = true;
+      
+      // حفظ الجلسة في localStorage
+      localStorage.setItem('discond_user', JSON.stringify(currentUser));
+      
+      // تسجيل الدخول
+      await loginUser();
+      
+    } catch (error) {
+      console.error('خطأ في تسجيل الدخول كضيف:', error);
+      showNotification('حدث خطأ في تسجيل الدخول', 'error');
+      showLoading(false);
+    }
   }
 
   // معالجة استجابة Google
@@ -1195,16 +1337,7 @@
       }
       
       // حفظ الجلسة في localStorage
-      localStorage.setItem('discond_user', JSON.stringify({
-        name: currentUser.name,
-        email: currentUser.email,
-        avatar: currentUser.avatar,
-        googleId: currentUser.googleId,
-        userId: currentUser.userId,
-        shortId: currentUser.shortId,
-        isAdmin: currentUser.isAdmin,
-        isGuest: false
-      }));
+      localStorage.setItem('discond_user', JSON.stringify(currentUser));
       
       // تسجيل الدخول
       await loginUser();
@@ -1223,10 +1356,11 @@
       await set(ref(db, `users/${currentUser.userId}`), {
         name: currentUser.name,
         email: currentUser.email,
-        googleId: currentUser.googleId,
+        googleId: currentUser.googleId || '',
         shortId: currentUser.shortId,
         avatar: currentUser.avatar,
-        isAdmin: currentUser.isAdmin,
+        isAdmin: currentUser.isAdmin || false,
+        isGuest: currentUser.isGuest || false,
         lastSeen: serverTimestamp(),
         joinedAt: serverTimestamp()
       });
@@ -1234,7 +1368,7 @@
       // تحديث واجهة المستخدم
       profileName.textContent = currentUser.name;
       profileAvatar.src = currentUser.avatar;
-      userEmail.textContent = currentUser.email;
+      userEmail.textContent = currentUser.email || 'ضيف';
       userIdText.textContent = currentUser.shortId;
       
       // إخفاء شاشة التسجيل وإظهار الشات
@@ -1247,8 +1381,13 @@
         sidebarToggle.style.display = 'flex';
       }
       
+      // إخفاء نموذج الضيف إذا كان مفتوح
+      hideGuestForm();
+      
       // التركيز على حقل الرسالة
-      messageInput.focus();
+      setTimeout(() => {
+        messageInput.focus();
+      }, 100);
       
       // مراقبة صلاحية الإدمن
       monitorAdminStatus();
@@ -1316,24 +1455,25 @@
         const userData = JSON.parse(savedUser);
         
         // التحقق من صحة البيانات
-        if (userData.userId && userData.name && userData.avatar) {
+        if (userData.userId && userData.name) {
           // تعيين بيانات المستخدم
           currentUser = userData;
           
           // تحديث واجهة المستخدم
           profileName.textContent = currentUser.name;
           profileAvatar.src = currentUser.avatar;
-          userEmail.textContent = currentUser.email;
+          userEmail.textContent = currentUser.email || 'ضيف';
           userIdText.textContent = currentUser.shortId;
           
           // تحديث بيانات المستخدم في Firebase
           await set(ref(db, `users/${currentUser.userId}`), {
             name: currentUser.name,
-            email: currentUser.email,
+            email: currentUser.email || 'ضيف',
             googleId: currentUser.googleId || '',
             shortId: currentUser.shortId,
             avatar: currentUser.avatar,
             isAdmin: currentUser.isAdmin || false,
+            isGuest: currentUser.isGuest || false,
             lastSeen: serverTimestamp(),
             joinedAt: serverTimestamp()
           });
@@ -1349,7 +1489,9 @@
           }
           
           // التركيز على حقل الرسالة
-          messageInput.focus();
+          setTimeout(() => {
+            messageInput.focus();
+          }, 100);
           
           // مراقبة صلاحية الإدمن
           monitorAdminStatus();
@@ -1864,7 +2006,7 @@
         text: text,
         timestamp: serverTimestamp(),
         isAdmin: currentUser.isAdmin,
-        email: currentUser.email
+        email: currentUser.email || 'ضيف'
       });
       
       return true;
@@ -1903,7 +2045,7 @@
         imageUrl: imageUrl,
         timestamp: serverTimestamp(),
         isAdmin: currentUser.isAdmin,
-        email: currentUser.email
+        email: currentUser.email || 'ضيف'
       });
       
       return true;
@@ -2214,8 +2356,19 @@
     }
   });
 
-  // تفعيل زر تسجيل الخروج
+  // تفعيل الأزرار
+  guestLoginBtn.addEventListener('click', showGuestForm);
+  guestSubmitBtn.addEventListener('click', handleGuestLogin);
+  guestCancelBtn.addEventListener('click', hideGuestForm);
   logoutBtn.addEventListener('click', logout);
+
+  // إدخال الضيف بالإنتر
+  guestNameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleGuestLogin();
+    }
+  });
 
   // التحقق من الجلسة عند تحميل الصفحة
   window.addEventListener('DOMContentLoaded', () => {
